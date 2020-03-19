@@ -146,11 +146,11 @@ def create_sheet4_6(complete_data, metadata, output_dir, global_data):
     grace_supply_split = metadata['grace_supply_split']
 
     equiped_sw_irrigation_tif = global_data["equiped_sw_irrigation"]
-    wpl_tif = global_data["wpl_tif"]
+#    wpl_tif = global_data["wpl_tif"]
     
     AREAS = becgis.map_pixel_area_km(metadata['lu'])
     
-    non_recov_fraction_tif = non_recoverable_fractions(metadata['lu'], wpl_tif, lucs, output_dir2)
+#    non_recov_fraction_tif = non_recoverable_fractions(metadata['lu'], wpl_tif, lucs, output_dir2)
 
     supply_swa = return_flow_sw_sw = return_flow_sw_gw = return_flow_gw_sw = return_flow_gw_gw = np.array([])
 
@@ -235,9 +235,10 @@ def create_sheet4_6(complete_data, metadata, output_dir, global_data):
         ###
         # Calculate (non-)recoverable return flows per source
         ###
-        non_recov_tif, recov_tif = split_flows(non_consumed_tif, non_recov_fraction_tif, output_dir, date, flow_names = ['NONRECOV', 'RECOV'])
+#        non_recov_tif, recov_tif = split_flows(non_consumed_tif, non_recov_fraction_tif, output_dir, date, flow_names = ['NONRECOV', 'RECOV'])
+        recov_tif = non_consumed_tif
         recov_sw_tif, recov_gw_tif = split_flows(recov_tif, sw_return_fraction_tif, output_dir, date, flow_names = ['RECOVsw', 'RECOVgw'])
-        non_recov_sw_tif, non_recov_gw_tif = split_flows(non_recov_tif, sw_return_fraction_tif, output_dir, date, flow_names = ['NONRECOVsw', 'NONRECOVgw'])
+#        non_recov_sw_tif, non_recov_gw_tif = split_flows(non_recov_tif, sw_return_fraction_tif, output_dir, date, flow_names = ['NONRECOVsw', 'NONRECOVgw'])
 
         ###
         # Caculate return flows to gw and sw
@@ -264,8 +265,8 @@ def create_sheet4_6(complete_data, metadata, output_dir, global_data):
                        'NON_CONVENTIONAL_ET' : non_conventional_et_tif,
                        'RECOVERABLE_SURFACEWATER' : recov_sw_tif,
                        'RECOVERABLE_GROUNDWATER' : recov_gw_tif,
-                       'NON_RECOVERABLE_SURFACEWATER': non_recov_sw_tif,
-                       'NON_RECOVERABLE_GROUNDWATER': non_recov_gw_tif,
+#                       'NON_RECOVERABLE_SURFACEWATER': non_recov_sw_tif,
+#                       'NON_RECOVERABLE_GROUNDWATER': non_recov_gw_tif,
                        'DEMAND': demand_tif}
         
         sheet4_csv =create_sheet4_csv(entries_sh4, metadata['lu'], AREAS, lucs, date, os.path.join(output_dir2, 'sheet4_monthly'), convert_unit = 1)
@@ -332,10 +333,10 @@ def create_sheet4_6(complete_data, metadata, output_dir, global_data):
     shutil.rmtree(os.path.split(non_consumed_tif)[0])
     shutil.rmtree(os.path.split(non_consumed_sw_tif)[0])
     shutil.rmtree(os.path.split(non_consumed_gw_tif)[0])
-    shutil.rmtree(os.path.split(non_recov_tif)[0])
+#    shutil.rmtree(os.path.split(non_recov_tif)[0])
     shutil.rmtree(os.path.split(recov_tif)[0])
     shutil.rmtree(os.path.split(non_recov_sw_tif)[0])
-    shutil.rmtree(os.path.split(non_recov_gw_tif)[0])
+#    shutil.rmtree(os.path.split(non_recov_gw_tif)[0])
     shutil.rmtree(os.path.split(recov_sw_tif)[0])
     shutil.rmtree(os.path.split(recov_gw_tif)[0])
     
@@ -379,51 +380,51 @@ def update_irrigation_fractions(lu_tif, fraction_tif, lucs, equiped_sw_irrigatio
     
     return fraction_tif
 
-def non_recoverable_fractions(lu_tif, wpl_tif, lucs, output_folder):
-    """
-    Create a map non recoverable fractions. For manmade landuseclasses, the grey water
-    footprint map is used. Non-recoverable for residential areas is set to 1. Natural
-    landusecategories are 0.
-    
-    Parameters
-    ----------
-    lu_tif : str
-        Landuse map.
-    wpl_tif : str
-        Map with Grey Water Footprint fractions.
-    lucs : dict
-        Dictionary describing the different landuse categories.
-    output_folder : str
-        Folder to save results.
-    
-    Returns
-    -------
-    tif : str
-        String pointing to file with results.
-    """
-    driver, NDV, xsize, ysize, GeoT, Projection = becgis.get_geoinfo(lu_tif)
-    
-    wpl_tif = becgis.match_proj_res_ndv(lu_tif, np.array([wpl_tif]), tf.mkdtemp())[0]
-    
-    WPL = becgis.open_as_array(wpl_tif, nan_values = True)
-    LULC = becgis.open_as_array(lu_tif, nan_values = True)
-    
-    manmade_categories = ['Irrigated crops','Managed water bodies','Aquaculture','Residential','Greenhouses','Other']
-    
-    mask = np.zeros(np.shape(LULC)).astype(np.bool)
-    
-    for category in manmade_categories:
-        mask = np.any([mask, np.logical_or.reduce([LULC == value for value in lucs[category]])], axis = 0)
-        
-    FRACTIONS = np.zeros(np.shape(LULC))
-    FRACTIONS[mask] = WPL[mask]
-    
-    mask = np.logical_or.reduce([LULC == value for value in lucs['Residential']])
-    FRACTIONS[mask] = 1.0
-    
-    tif = os.path.join(output_folder, 'non_recov_fraction.tif')
-    becgis.create_geotiff(tif, FRACTIONS, driver, NDV, xsize, ysize, GeoT, Projection)
-    return tif
+#def non_recoverable_fractions(lu_tif, wpl_tif, lucs, output_folder):
+#    """
+#    Create a map non recoverable fractions. For manmade landuseclasses, the grey water
+#    footprint map is used. Non-recoverable for residential areas is set to 1. Natural
+#    landusecategories are 0.
+#    
+#    Parameters
+#    ----------
+#    lu_tif : str
+#        Landuse map.
+#    wpl_tif : str
+#        Map with Grey Water Footprint fractions.
+#    lucs : dict
+#        Dictionary describing the different landuse categories.
+#    output_folder : str
+#        Folder to save results.
+#    
+#    Returns
+#    -------
+#    tif : str
+#        String pointing to file with results.
+#    """
+#    driver, NDV, xsize, ysize, GeoT, Projection = becgis.get_geoinfo(lu_tif)
+#    
+#    wpl_tif = becgis.match_proj_res_ndv(lu_tif, np.array([wpl_tif]), tf.mkdtemp())[0]
+#    
+#    WPL = becgis.open_as_array(wpl_tif, nan_values = True)
+#    LULC = becgis.open_as_array(lu_tif, nan_values = True)
+#    
+#    manmade_categories = ['Irrigated crops','Managed water bodies','Aquaculture','Residential','Greenhouses','Other']
+#    
+#    mask = np.zeros(np.shape(LULC)).astype(np.bool)
+#    
+#    for category in manmade_categories:
+#        mask = np.any([mask, np.logical_or.reduce([LULC == value for value in lucs[category]])], axis = 0)
+#        
+#    FRACTIONS = np.zeros(np.shape(LULC))
+#    FRACTIONS[mask] = WPL[mask]
+#    
+#    mask = np.logical_or.reduce([LULC == value for value in lucs['Residential']])
+#    FRACTIONS[mask] = 1.0
+#    
+#    tif = os.path.join(output_folder, 'non_recov_fraction.tif')
+#    becgis.create_geotiff(tif, FRACTIONS, driver, NDV, xsize, ysize, GeoT, Projection)
+#    return tif
     
 def calc_demand(lai_tif, etref_tif, p_tif, lu_tif, date, output_folder):
     """
@@ -705,70 +706,70 @@ def plot_per_category(fhs, dates, lu_fh, AREAS, dictionary, output_fh, scale = 1
     ax.legend(reversed(handles), reversed(labels), loc='center left', bbox_to_anchor=(1, 0.5),fancybox=True, shadow=True)
     plt.savefig(output_fh)
     
-def distance_to_class(lu_fh, output_folder, proximity_to_values = 23, approximate_kms = False):
-    """
-    Calculates the distance for each pixel to the closest pixel with a specified
-    value.
-    
-    Parameters
-    ----------
-    lu_fh : str
-        Filehandle pointing to a geotiff for which the distances will be
-        calculated.
-    output_folder : str
-        Folder to store the map 'distance.tif'.
-    proximity_to_values : int or float or list, optional
-        Value for which the shortest distance will be computer for each pixel,
-        default value is 23. Can also be list of multiple values.
-    approximate_kms : boolean, optional
-        When False, the unit of the output is in degrees. When True, the degrees
-        are converted to estimated kilometres. For each pixel a conversion
-        rate is approximated by dividing the square root of the area in kilometers
-        by the square root of the area in degrees. Default is False.
-        
-    Returns
-    -------
-    distance_fh : str
-        Filehandle pointing to the 'distance.tif' file.
-    
-    """
-    distance_fh = os.path.join(output_folder, 'distance.tif')
-    
-    src_ds = gdal.Open(lu_fh)
-    srcband = src_ds.GetRasterBand(1)
-    try:
-        driver = gdal.IdentifyDriver(distance_fh)
-        if driver is not None:
-            dst_ds = gdal.Open(distance_fh, gdal.GA_Update)
-            dstband = dst_ds.GetRasterBand(1)
-        else:
-            dst_ds = None
-    except:
-        dst_ds = None
-    if dst_ds is None:
-        drv = gdal.GetDriverByName('GTiff')
-        dst_ds = drv.Create(distance_fh, src_ds.RasterXSize, src_ds.RasterYSize, 1, gdal.GetDataTypeByName('Float32'))
-        dst_ds.SetGeoTransform(src_ds.GetGeoTransform())
-        dst_ds.SetProjection(src_ds.GetProjectionRef())
-        dstband = dst_ds.GetRasterBand(1)
-    if type(proximity_to_values) == list:
-        proximity_to_values = str(proximity_to_values)[1:-1]
-    options = ['VALUES={0}'.format(proximity_to_values), 'DISTUNITS=GEO']
-    gdal.ComputeProximity(srcband, dstband, options, callback = gdal.TermProgress)
-    srcband = None
-    dstband = None
-    src_ds = None
-    dst_ds = None
-    
-    if approximate_kms:
-        lengths = becgis.map_pixel_area_km(lu_fh, approximate_lengths = True)
-        distance = becgis.open_as_array(distance_fh)
-        array = distance * lengths
-        driver, NDV, xsize, ysize, GeoT, Projection = becgis.get_geoinfo(distance_fh)
-        becgis.create_geotiff(distance_fh, array, driver, NDV, xsize, ysize, GeoT, Projection)
-    
-    print('Finished calculating distances to waterbodies.')
-    return distance_fh
+#def distance_to_class(lu_fh, output_folder, proximity_to_values = 23, approximate_kms = False):
+#    """
+#    Calculates the distance for each pixel to the closest pixel with a specified
+#    value.
+#    
+#    Parameters
+#    ----------
+#    lu_fh : str
+#        Filehandle pointing to a geotiff for which the distances will be
+#        calculated.
+#    output_folder : str
+#        Folder to store the map 'distance.tif'.
+#    proximity_to_values : int or float or list, optional
+#        Value for which the shortest distance will be computer for each pixel,
+#        default value is 23. Can also be list of multiple values.
+#    approximate_kms : boolean, optional
+#        When False, the unit of the output is in degrees. When True, the degrees
+#        are converted to estimated kilometres. For each pixel a conversion
+#        rate is approximated by dividing the square root of the area in kilometers
+#        by the square root of the area in degrees. Default is False.
+#        
+#    Returns
+#    -------
+#    distance_fh : str
+#        Filehandle pointing to the 'distance.tif' file.
+#    
+#    """
+#    distance_fh = os.path.join(output_folder, 'distance.tif')
+#    
+#    src_ds = gdal.Open(lu_fh)
+#    srcband = src_ds.GetRasterBand(1)
+#    try:
+#        driver = gdal.IdentifyDriver(distance_fh)
+#        if driver is not None:
+#            dst_ds = gdal.Open(distance_fh, gdal.GA_Update)
+#            dstband = dst_ds.GetRasterBand(1)
+#        else:
+#            dst_ds = None
+#    except:
+#        dst_ds = None
+#    if dst_ds is None:
+#        drv = gdal.GetDriverByName('GTiff')
+#        dst_ds = drv.Create(distance_fh, src_ds.RasterXSize, src_ds.RasterYSize, 1, gdal.GetDataTypeByName('Float32'))
+#        dst_ds.SetGeoTransform(src_ds.GetGeoTransform())
+#        dst_ds.SetProjection(src_ds.GetProjectionRef())
+#        dstband = dst_ds.GetRasterBand(1)
+#    if type(proximity_to_values) == list:
+#        proximity_to_values = str(proximity_to_values)[1:-1]
+#    options = ['VALUES={0}'.format(proximity_to_values), 'DISTUNITS=GEO']
+#    gdal.ComputeProximity(srcband, dstband, options, callback = gdal.TermProgress)
+#    srcband = None
+#    dstband = None
+#    src_ds = None
+#    dst_ds = None
+#    
+#    if approximate_kms:
+#        lengths = becgis.map_pixel_area_km(lu_fh, approximate_lengths = True)
+#        distance = becgis.open_as_array(distance_fh)
+#        array = distance * lengths
+#        driver, NDV, xsize, ysize, GeoT, Projection = becgis.get_geoinfo(distance_fh)
+#        becgis.create_geotiff(distance_fh, array, driver, NDV, xsize, ysize, GeoT, Projection)
+#    
+#    print('Finished calculating distances to waterbodies.')
+#    return distance_fh
 
 
 def split_flows(flow_fh, fraction_fh, output_folder, date, flow_names = ['sw','gw']):
@@ -987,7 +988,7 @@ def create_sheet4_csv(entries, lu_fh, AREAS, sheet4_lucs, date, output_folder, a
             required_landuse_types.remove(lu_type)
             
     for missing_lu_type in required_landuse_types:
-        writer.writerow([missing_lu_type, 'nan', 'nan', 'nan', 'nan', 'nan', 'nan', 'nan', 'nan', 'nan', 'nan'])
+        writer.writerow([missing_lu_type, 'nan', 'nan', 'nan', 'nan', 'nan', 'nan', 'nan', 'nan'])
     
     csv_file.close()
     
@@ -1074,9 +1075,9 @@ def create_sheet4(basin, period, units, data, output, template=False, margin = 0
         scale = hl.scale_factor(scale_test)
         
         for df in [df1, df2]:
-            for column in ['SUPPLY_GROUNDWATER', 'NON_RECOVERABLE_GROUNDWATER', 'SUPPLY_SURFACEWATER',
+            for column in ['SUPPLY_GROUNDWATER',  'SUPPLY_SURFACEWATER',
                            'NON_CONVENTIONAL_ET', 'RECOVERABLE_GROUNDWATER', 'CONSUMED_OTHER', 'CONSUMED_ET',
-                           'DEMAND', 'RECOVERABLE_SURFACEWATER', 'NON_RECOVERABLE_SURFACEWATER']:
+                           'DEMAND', 'RECOVERABLE_SURFACEWATER']:
                 
                 df[column] *= 10**scale
 
@@ -1111,44 +1112,28 @@ def create_sheet4(basin, period, units, data, output, template=False, margin = 0
         
         p1['sp_r01_c02'] = pd.np.sum([float(df1.loc[(df1.LANDUSE_TYPE == "Irrigated crops")].CONSUMED_ET),
                                          float(df1.loc[(df1.LANDUSE_TYPE == "Irrigated crops")].CONSUMED_OTHER),
-                                         float(df1.loc[(df1.LANDUSE_TYPE == "Irrigated crops")].NON_CONVENTIONAL_ET),
-                                         float(df1.loc[(df1.LANDUSE_TYPE == "Irrigated crops")].NON_RECOVERABLE_GROUNDWATER),
-                                         float(df1.loc[(df1.LANDUSE_TYPE == "Irrigated crops")].NON_RECOVERABLE_SURFACEWATER)])
+                                         float(df1.loc[(df1.LANDUSE_TYPE == "Irrigated crops")].NON_CONVENTIONAL_ET)])
         p1['sp_r02_c02'] = pd.np.sum([float(df1.loc[(df1.LANDUSE_TYPE == "Managed water bodies")].CONSUMED_ET),
                                          float(df1.loc[(df1.LANDUSE_TYPE == "Managed water bodies")].CONSUMED_OTHER),
-                                         float(df1.loc[(df1.LANDUSE_TYPE == "Managed water bodies")].NON_CONVENTIONAL_ET),
-                                         float(df1.loc[(df1.LANDUSE_TYPE == "Managed water bodies")].NON_RECOVERABLE_GROUNDWATER),
-                                         float(df1.loc[(df1.LANDUSE_TYPE == "Managed water bodies")].NON_RECOVERABLE_SURFACEWATER)]) 
+                                         float(df1.loc[(df1.LANDUSE_TYPE == "Managed water bodies")].NON_CONVENTIONAL_ET)]) 
         p1['sp_r03_c02'] = pd.np.sum([float(df1.loc[(df1.LANDUSE_TYPE == "Industry")].CONSUMED_ET),
                                          float(df1.loc[(df1.LANDUSE_TYPE == "Industry")].CONSUMED_OTHER),
-                                         float(df1.loc[(df1.LANDUSE_TYPE == "Industry")].NON_CONVENTIONAL_ET),
-                                         float(df1.loc[(df1.LANDUSE_TYPE == "Industry")].NON_RECOVERABLE_GROUNDWATER),
-                                         float(df1.loc[(df1.LANDUSE_TYPE == "Industry")].NON_RECOVERABLE_SURFACEWATER)]) 
+                                         float(df1.loc[(df1.LANDUSE_TYPE == "Industry")].NON_CONVENTIONAL_ET)]) 
         p1['sp_r04_c02'] = pd.np.sum([float(df1.loc[(df1.LANDUSE_TYPE == "Aquaculture")].CONSUMED_ET),
                                          float(df1.loc[(df1.LANDUSE_TYPE == "Aquaculture")].CONSUMED_OTHER),
-                                         float(df1.loc[(df1.LANDUSE_TYPE == "Aquaculture")].NON_CONVENTIONAL_ET),
-                                         float(df1.loc[(df1.LANDUSE_TYPE == "Aquaculture")].NON_RECOVERABLE_GROUNDWATER),
-                                         float(df1.loc[(df1.LANDUSE_TYPE == "Aquaculture")].NON_RECOVERABLE_SURFACEWATER)]) 
+                                         float(df1.loc[(df1.LANDUSE_TYPE == "Aquaculture")].NON_CONVENTIONAL_ET)]) 
         p1['sp_r05_c02'] = pd.np.sum([float(df1.loc[(df1.LANDUSE_TYPE == "Residential")].CONSUMED_ET),
                                          float(df1.loc[(df1.LANDUSE_TYPE == "Residential")].CONSUMED_OTHER),
-                                         float(df1.loc[(df1.LANDUSE_TYPE == "Residential")].NON_CONVENTIONAL_ET),
-                                         float(df1.loc[(df1.LANDUSE_TYPE == "Residential")].NON_RECOVERABLE_GROUNDWATER),
-                                         float(df1.loc[(df1.LANDUSE_TYPE == "Residential")].NON_RECOVERABLE_SURFACEWATER)]) 
+                                         float(df1.loc[(df1.LANDUSE_TYPE == "Residential")].NON_CONVENTIONAL_ET)]) 
         p1['sp_r06_c02'] = pd.np.sum([float(df1.loc[(df1.LANDUSE_TYPE == "Greenhouses")].CONSUMED_ET),
                                          float(df1.loc[(df1.LANDUSE_TYPE == "Greenhouses")].CONSUMED_OTHER),
-                                         float(df1.loc[(df1.LANDUSE_TYPE == "Greenhouses")].NON_CONVENTIONAL_ET),
-                                         float(df1.loc[(df1.LANDUSE_TYPE == "Greenhouses")].NON_RECOVERABLE_GROUNDWATER),
-                                         float(df1.loc[(df1.LANDUSE_TYPE == "Greenhouses")].NON_RECOVERABLE_SURFACEWATER)]) 
+                                         float(df1.loc[(df1.LANDUSE_TYPE == "Greenhouses")].NON_CONVENTIONAL_ET)]) 
         p1['sp_r07_c02'] = pd.np.sum([float(df1.loc[(df1.LANDUSE_TYPE == "Power and Energy")].CONSUMED_ET),
                                          float(df1.loc[(df1.LANDUSE_TYPE == "Power and Energy")].CONSUMED_OTHER),
-                                         float(df1.loc[(df1.LANDUSE_TYPE == "Power and Energy")].NON_CONVENTIONAL_ET),
-                                         float(df1.loc[(df1.LANDUSE_TYPE == "Power and Energy")].NON_RECOVERABLE_GROUNDWATER),
-                                         float(df1.loc[(df1.LANDUSE_TYPE == "Power and Energy")].NON_RECOVERABLE_SURFACEWATER)]) 
+                                         float(df1.loc[(df1.LANDUSE_TYPE == "Power and Energy")].NON_CONVENTIONAL_ET)]) 
         p1['sp_r08_c02'] = pd.np.sum([float(df1.loc[(df1.LANDUSE_TYPE == "Other")].CONSUMED_ET),
                                          float(df1.loc[(df1.LANDUSE_TYPE == "Other")].CONSUMED_OTHER),
-                                         float(df1.loc[(df1.LANDUSE_TYPE == "Other")].NON_CONVENTIONAL_ET),
-                                         float(df1.loc[(df1.LANDUSE_TYPE == "Other")].NON_RECOVERABLE_GROUNDWATER),
-                                         float(df1.loc[(df1.LANDUSE_TYPE == "Other")].NON_RECOVERABLE_SURFACEWATER)]) 
+                                         float(df1.loc[(df1.LANDUSE_TYPE == "Other")].NON_CONVENTIONAL_ET)]) 
     
         p1['sp_r01_c03'] = pd.np.sum([float(df1.loc[(df1.LANDUSE_TYPE == "Irrigated crops")].RECOVERABLE_GROUNDWATER),
                                          float(df1.loc[(df1.LANDUSE_TYPE == "Irrigated crops")].RECOVERABLE_SURFACEWATER)])
@@ -1226,25 +1211,25 @@ def create_sheet4(basin, period, units, data, output, template=False, margin = 0
                                float(df1.loc[(df1.LANDUSE_TYPE == "Power and Energy")].RECOVERABLE_GROUNDWATER),
                                float(df1.loc[(df1.LANDUSE_TYPE == "Other")].RECOVERABLE_GROUNDWATER)])
                                
-        p1['of_r03_c01'] = pd.np.nansum([float(df1.loc[(df1.LANDUSE_TYPE == "Irrigated crops")].NON_RECOVERABLE_SURFACEWATER),
-                               float(df1.loc[(df1.LANDUSE_TYPE == "Managed water bodies")].NON_RECOVERABLE_SURFACEWATER),
-                               float(df1.loc[(df1.LANDUSE_TYPE == "Industry")].NON_RECOVERABLE_SURFACEWATER),
-                               float(df1.loc[(df1.LANDUSE_TYPE == "Aquaculture")].NON_RECOVERABLE_SURFACEWATER),
-                               float(df1.loc[(df1.LANDUSE_TYPE == "Residential")].NON_RECOVERABLE_SURFACEWATER),
-                               float(df1.loc[(df1.LANDUSE_TYPE == "Greenhouses")].NON_RECOVERABLE_SURFACEWATER),
-                               float(df1.loc[(df1.LANDUSE_TYPE == "Power and Energy")].NON_RECOVERABLE_SURFACEWATER),
-                               float(df1.loc[(df1.LANDUSE_TYPE == "Other")].NON_RECOVERABLE_SURFACEWATER)])
+#        p1['of_r03_c01'] = pd.np.nansum([float(df1.loc[(df1.LANDUSE_TYPE == "Irrigated crops")].NON_RECOVERABLE_SURFACEWATER),
+#                               float(df1.loc[(df1.LANDUSE_TYPE == "Managed water bodies")].NON_RECOVERABLE_SURFACEWATER),
+#                               float(df1.loc[(df1.LANDUSE_TYPE == "Industry")].NON_RECOVERABLE_SURFACEWATER),
+#                               float(df1.loc[(df1.LANDUSE_TYPE == "Aquaculture")].NON_RECOVERABLE_SURFACEWATER),
+#                               float(df1.loc[(df1.LANDUSE_TYPE == "Residential")].NON_RECOVERABLE_SURFACEWATER),
+#                               float(df1.loc[(df1.LANDUSE_TYPE == "Greenhouses")].NON_RECOVERABLE_SURFACEWATER),
+#                               float(df1.loc[(df1.LANDUSE_TYPE == "Power and Energy")].NON_RECOVERABLE_SURFACEWATER),
+#                               float(df1.loc[(df1.LANDUSE_TYPE == "Other")].NON_RECOVERABLE_SURFACEWATER)])
+#                               
+#        p1['of_r05_c01'] = pd.np.nansum([float(df1.loc[(df1.LANDUSE_TYPE == "Irrigated crops")].NON_RECOVERABLE_GROUNDWATER),
+#                               float(df1.loc[(df1.LANDUSE_TYPE == "Managed water bodies")].NON_RECOVERABLE_GROUNDWATER),
+#                               float(df1.loc[(df1.LANDUSE_TYPE == "Industry")].NON_RECOVERABLE_GROUNDWATER),
+#                               float(df1.loc[(df1.LANDUSE_TYPE == "Aquaculture")].NON_RECOVERABLE_GROUNDWATER),
+#                               float(df1.loc[(df1.LANDUSE_TYPE == "Residential")].NON_RECOVERABLE_GROUNDWATER),
+#                               float(df1.loc[(df1.LANDUSE_TYPE == "Greenhouses")].NON_RECOVERABLE_GROUNDWATER),
+#                               float(df1.loc[(df1.LANDUSE_TYPE == "Power and Energy")].NON_RECOVERABLE_GROUNDWATER),
+#                               float(df1.loc[(df1.LANDUSE_TYPE == "Other")].NON_RECOVERABLE_GROUNDWATER)])
                                
-        p1['of_r05_c01'] = pd.np.nansum([float(df1.loc[(df1.LANDUSE_TYPE == "Irrigated crops")].NON_RECOVERABLE_GROUNDWATER),
-                               float(df1.loc[(df1.LANDUSE_TYPE == "Managed water bodies")].NON_RECOVERABLE_GROUNDWATER),
-                               float(df1.loc[(df1.LANDUSE_TYPE == "Industry")].NON_RECOVERABLE_GROUNDWATER),
-                               float(df1.loc[(df1.LANDUSE_TYPE == "Aquaculture")].NON_RECOVERABLE_GROUNDWATER),
-                               float(df1.loc[(df1.LANDUSE_TYPE == "Residential")].NON_RECOVERABLE_GROUNDWATER),
-                               float(df1.loc[(df1.LANDUSE_TYPE == "Greenhouses")].NON_RECOVERABLE_GROUNDWATER),
-                               float(df1.loc[(df1.LANDUSE_TYPE == "Power and Energy")].NON_RECOVERABLE_GROUNDWATER),
-                               float(df1.loc[(df1.LANDUSE_TYPE == "Other")].NON_RECOVERABLE_GROUNDWATER)])
-                               
-        p1['of_r04_c02'] = pd.np.nansum([p1['of_r05_c01'],p1['of_r03_c01']])
+#        p1['of_r04_c02'] = pd.np.nansum([p1['of_r05_c01'],p1['of_r03_c01']])
         
         p1['sp_r02_c04'] = pd.np.nansum([p1['of_r02_c01'],p1['of_r04_c01']])
         
