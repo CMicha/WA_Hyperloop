@@ -14,7 +14,7 @@ import numpy as np
 import calendar
 from dateutil.relativedelta import relativedelta
 import matplotlib.pyplot as plt
-from matplotlib.colors import LinearSegmentedColormap
+#from matplotlib.colors import LinearSegmentedColormap
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
 import pandas as pd
@@ -40,7 +40,7 @@ def create_sheet3(complete_data, metadata, output_dir):
     for crop in metadata['crops']:
         if crop[4] in LULC:
             start_dates, end_dates = import_growing_seasons(crop[0])
-            result_seasonly = calc_Y_WP_seasons(start_dates, end_dates, metadata['lu'], crop[4], crop[1], complete_data['etg'][0], complete_data['etg'][1], complete_data['etb'][0], complete_data['etb'][1], complete_data['ndm'][0], complete_data['ndm'][1], complete_data['p'][0], complete_data['p'][1], os.path.join(output_dir, 'WP_Y_Seasonly_csvs'), HIWC_dict, ab = (1.0,0.9))
+            result_seasonly = calc_Y_WP_seasons(start_dates, end_dates, metadata['lu'], crop[4], crop[1], complete_data['etg'][0], complete_data['etg'][1], complete_data['etb'][0], complete_data['etb'][1], complete_data['ndm'][0], complete_data['ndm'][1], complete_data['p'][0], complete_data['p'][1], os.path.join(output_dir, 'WP_Y_Seasonly_csvs'), HIWC_dict)
             result = calc_Y_WP_year(result_seasonly, os.path.join(output_dir, 'WP_Y_Yearly_csvs'), crop[1])
             plot_Y_WP(result, os.path.join(output_dir,'WP_Y_Yearly_graphs'), croptype = crop[1], catchment_name = metadata['name'], filetype = 'png')
             plot_Y_WP(result_seasonly, os.path.join(output_dir,'WP_Y_Seasonly_graphs'), croptype = crop[1], catchment_name = metadata['name'], filetype = 'png')
@@ -148,16 +148,16 @@ def create_sheet3_csv(wp_y_irrigated_dictionary, wp_y_rainfed_dictionary, wp_y_n
     for TYPE in list(wp_y_irrigated_dictionary.keys()):
         for SUBTYPE in list(wp_y_irrigated_dictionary[TYPE].keys()):
             if type(wp_y_irrigated_dictionary[TYPE][SUBTYPE]) is type(None):
-                writer_b.writerow(["CROP","IRRIGATED","Yield rainfall",TYPE,SUBTYPE,"nan","nan"])
-                writer_b.writerow(["CROP","IRRIGATED","Incremental yield",TYPE,SUBTYPE,"nan","nan"])
+#                writer_b.writerow(["CROP","IRRIGATED","Yield rainfall",TYPE,SUBTYPE,"nan","nan"])
+#                writer_b.writerow(["CROP","IRRIGATED","Incremental yield",TYPE,SUBTYPE,"nan","nan"])
                 writer_b.writerow(["CROP","IRRIGATED","Total yield",TYPE,SUBTYPE,"nan","nan"])
                 writer_a.writerow(["CROP","IRRIGATED","ET rainfall",TYPE,SUBTYPE,"nan"])
                 writer_a.writerow(["CROP","IRRIGATED","Incremental ET",TYPE,SUBTYPE,"nan"])
             else:                
-                start_dates, end_dates, Y, Yirr, Ypr, WP, WPblue, WPgreen, WC, WCblue, WCgreen = read_csv(wp_y_irrigated_dictionary[TYPE][SUBTYPE])
+                start_dates, end_dates, Y, WP, WC, WCblue, WCgreen = read_csv(wp_y_irrigated_dictionary[TYPE][SUBTYPE])
                 mask = start_dates == datetime.date(year,1,1)
-                writer_b.writerow(["CROP","IRRIGATED","Yield rainfall",TYPE,SUBTYPE,Ypr[mask][0],WPgreen[mask][0]])
-                writer_b.writerow(["CROP","IRRIGATED","Incremental yield",TYPE,SUBTYPE,Yirr[mask][0],WPblue[mask][0]])
+#                writer_b.writerow(["CROP","IRRIGATED","Yield rainfall",TYPE,SUBTYPE,Ypr[mask][0],WPgreen[mask][0]])
+#                writer_b.writerow(["CROP","IRRIGATED","Incremental yield",TYPE,SUBTYPE,Yirr[mask][0],WPblue[mask][0]])
                 writer_b.writerow(["CROP","IRRIGATED","Total yield",TYPE,SUBTYPE,Y[mask][0],WP[mask][0]])              
                 writer_a.writerow(["CROP","IRRIGATED","ET rainfall",TYPE,SUBTYPE,WCgreen[mask][0]])
                 writer_a.writerow(["CROP","IRRIGATED","Incremental ET",TYPE,SUBTYPE,WCblue[mask][0]])
@@ -168,7 +168,7 @@ def create_sheet3_csv(wp_y_irrigated_dictionary, wp_y_rainfed_dictionary, wp_y_n
                 writer_b.writerow(["CROP","RAINFED","Yield",TYPE,SUBTYPE,"nan","nan"])
                 writer_a.writerow(["CROP","RAINFED","ET",TYPE,SUBTYPE,"nan"])
             else:
-                start_dates, end_dates, Y, Yirr, Ypr, WP, WPblue, WPgreen, WC, WCblue, WCgreen  = read_csv(wp_y_rainfed_dictionary[TYPE][SUBTYPE])
+                start_dates, end_dates, Y, WP, WC, WCblue, WCgreen  = read_csv(wp_y_rainfed_dictionary[TYPE][SUBTYPE])
                 mask = start_dates == datetime.date(year,1,1)
                 writer_b.writerow(["CROP","RAINFED","Yield",TYPE,SUBTYPE,Y[mask][0],WP[mask][0]])
                 writer_a.writerow(["CROP","RAINFED","ET",TYPE,SUBTYPE,WC[mask][0]])
@@ -177,8 +177,8 @@ def create_sheet3_csv(wp_y_irrigated_dictionary, wp_y_rainfed_dictionary, wp_y_n
         for SUBTYPE in list(wp_y_non_crop_dictionary[TYPE].keys()):
             if type(wp_y_non_crop_dictionary[TYPE][SUBTYPE]) is type(None):
                 writer_b.writerow(["NON-CROP","RAINFED","Yield",TYPE,SUBTYPE,"nan","nan"])
-                writer_b.writerow(["NON-CROP","IRRIGATED","Yield rainfall",TYPE,SUBTYPE,"nan","nan"])
-                writer_b.writerow(["NON-CROP","IRRIGATED","Incremental yield",TYPE,SUBTYPE,"nan","nan"])
+#                writer_b.writerow(["NON-CROP","IRRIGATED","Yield rainfall",TYPE,SUBTYPE,"nan","nan"])
+#                writer_b.writerow(["NON-CROP","IRRIGATED","Incremental yield",TYPE,SUBTYPE,"nan","nan"])
                 writer_b.writerow(["NON-CROP","IRRIGATED","Total yield",TYPE,SUBTYPE,"nan","nan"])
                 if TYPE != 'Livestock':
                     writer_a.writerow(["NON-CROP","RAINFED","ET",TYPE,SUBTYPE,"nan"])
@@ -187,20 +187,20 @@ def create_sheet3_csv(wp_y_irrigated_dictionary, wp_y_rainfed_dictionary, wp_y_n
                 else:
                     continue
             else:
-                start_dates, end_dates, Y, Yirr, Ypr, WP, WPblue, WPgreen, WC, WCblue, WCgreen  = read_csv(wp_y_non_crop_dictionary[TYPE][SUBTYPE])
+                start_dates, end_dates, Y, WP, WC, WCblue, WCgreen  = read_csv(wp_y_non_crop_dictionary[TYPE][SUBTYPE])
                 mask = start_dates == datetime.date(year,1,1)
                 if TYPE != 'Livestock':
                     writer_b.writerow(["NON-CROP","RAINFED","Yield",TYPE,SUBTYPE,Y[mask][0],WP[mask][0]])
-                    writer_b.writerow(["NON-CROP","IRRIGATED","Yield rainfall",TYPE,SUBTYPE,"nan","nan"])
-                    writer_b.writerow(["NON-CROP","IRRIGATED","Incremental yield",TYPE,SUBTYPE,"nan","nan"])
+#                    writer_b.writerow(["NON-CROP","IRRIGATED","Yield rainfall",TYPE,SUBTYPE,"nan","nan"])
+#                    writer_b.writerow(["NON-CROP","IRRIGATED","Incremental yield",TYPE,SUBTYPE,"nan","nan"])
                     writer_b.writerow(["NON-CROP","IRRIGATED","Total yield",TYPE,SUBTYPE,"nan","nan"])
                     writer_a.writerow(["NON-CROP","RAINFED","ET",TYPE,SUBTYPE,WC[mask][0]])
                     writer_a.writerow(["NON-CROP","IRRIGATED","ET rainfall",TYPE,SUBTYPE,"nan"])
                     writer_a.writerow(["NON-CROP","IRRIGATED","Incremental ET",TYPE,SUBTYPE,"nan"])
                 else:
                     writer_b.writerow(["NON-CROP","RAINFED","Yield",TYPE,SUBTYPE,Y[mask][0],"nan"])
-                    writer_b.writerow(["NON-CROP","IRRIGATED","Yield rainfall",TYPE,SUBTYPE,"nan","nan"])
-                    writer_b.writerow(["NON-CROP","IRRIGATED","Incremental yield",TYPE,SUBTYPE,"nan","nan"])
+#                    writer_b.writerow(["NON-CROP","IRRIGATED","Yield rainfall",TYPE,SUBTYPE,"nan","nan"])
+#                    writer_b.writerow(["NON-CROP","IRRIGATED","Incremental yield",TYPE,SUBTYPE,"nan","nan"])
                     writer_b.writerow(["NON-CROP","IRRIGATED","Total yield",TYPE,SUBTYPE,"nan","nan"])
     
     csv_file_b.close()
@@ -230,14 +230,14 @@ def calc_Y_WP_year(csv_fh, output_dir, croptype):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)  
         
-    start_dates, end_dates, Y, Yirr, Ypr, WP, WPblue, WPgreen, WC, WC_blue, WC_green = read_csv(csv_fh)
+    start_dates, end_dates, Y,  WP, WC, WC_blue, WC_green = read_csv(csv_fh)
     
     years = np.unique(np.array([date.year for date in np.append(start_dates, end_dates)]))
     
     csv_filename = os.path.join(output_dir, r'Yearly_'+ os.path.basename(csv_fh))
     csv_file = open(csv_filename, 'w')
     writer = csv.writer(csv_file, delimiter=';', lineterminator = '\n')
-    writer.writerow(["Startdate", "Enddate", "Yield [kg/ha]", "Yield_pr [kg/ha]", "Yield_irr [kg/ha]", "WP [kg/m3]", "WP_blue [kg/m3]", "WP_green [kg/m3]", "WC [km3]", "WC_blue [km3]", "WC_green [km3]"])
+    writer.writerow(["Startdate", "Enddate", "Yield [kg/ha]", "WP [kg/m3]", "WC [km3]", "WC_blue [km3]", "WC_green [km3]"])
     
     for year in years:
         
@@ -255,18 +255,18 @@ def calc_Y_WP_year(csv_fh, output_dir, croptype):
         fractions = lengths_within_year / lengths_total_season
         
         y = np.sum(np.array([Y[start_dates == start][0] for start in starts]) * fractions)
-        yirr = np.sum(np.array([Yirr[start_dates == start][0] for start in starts]) * fractions)
-        ypr = np.sum(np.array([Ypr[start_dates == start][0] for start in starts]) * fractions)
+#        yirr = np.sum(np.array([Yirr[start_dates == start][0] for start in starts]) * fractions)
+#        ypr = np.sum(np.array([Ypr[start_dates == start][0] for start in starts]) * fractions)
         
         wc = np.sum(np.array([WC[start_dates == start][0] for start in starts]) * fractions)
         wcblue = np.sum(np.array([WC_blue[start_dates == start][0] for start in starts]) * fractions)
         wcgreen = np.sum(np.array([WC_green[start_dates == start][0] for start in starts]) * fractions)
         
         wp = np.average(np.array([WP[start_dates == start][0] for start in starts]), weights = fractions)
-        wpblue = np.average(np.array([WPblue[start_dates == start][0] for start in starts]), weights = fractions)
-        wpgreen = np.average(np.array([WPgreen[start_dates == start][0] for start in starts]), weights = fractions)
+#        wpblue = np.average(np.array([WPblue[start_dates == start][0] for start in starts]), weights = fractions)
+#        wpgreen = np.average(np.array([WPgreen[start_dates == start][0] for start in starts]), weights = fractions)
         
-        writer.writerow([datetime.date(year,1,1), datetime.date(year,12,31), y, ypr, yirr, wp, wpblue, wpgreen, wc, wcblue, wcgreen])
+        writer.writerow([datetime.date(year,1,1), datetime.date(year,12,31), y, wp, wc, wcblue, wcgreen])
     
     csv_file.close()
     
@@ -342,11 +342,11 @@ def read_csv(csv_fh):
     start_dates = np.array([])
     end_dates = np.array([])
     Y = np.array([])
-    Yirr = np.array([])
-    Ypr = np.array([])
+#    Yirr = np.array([])
+#    Ypr = np.array([])
     WP = np.array([])
-    WPblue = np.array([])
-    WPgreen = np.array([])
+#    WPblue = np.array([])
+#    WPgreen = np.array([])
     WC = np.array([])
     WC_green = np.array([])
     WC_blue = np.array([])
@@ -362,17 +362,17 @@ def read_csv(csv_fh):
                      start_dates = np.append(start_dates, datetime.datetime.strptime(row[0], '%d/%m/%Y').date())
                      end_dates = np.append(end_dates, datetime.datetime.strptime(row[1], '%d/%m/%Y').date())                     
                  Y = np.append(Y, float(row[2]))
-                 Ypr = np.append(Ypr, float(row[3]))
-                 Yirr = np.append(Yirr, float(row[4]))
-                 WP = np.append(WP, float(row[5]))
-                 WPblue = np.append(WPblue, float(row[6]))
-                 WPgreen = np.append(WPgreen, float(row[7]))
-                 WC = np.append(WC, float(row[8]))
-                 WC_blue = np.append(WC_blue, float(row[9]))
-                 WC_green = np.append(WC_green, float(row[10]))
+#                 Ypr = np.append(Ypr, float(row[3]))
+#                 Yirr = np.append(Yirr, float(row[4]))
+                 WP = np.append(WP, float(row[3]))
+#                 WPblue = np.append(WPblue, float(row[6]))
+#                 WPgreen = np.append(WPgreen, float(row[7]))
+                 WC = np.append(WC, float(row[4]))
+                 WC_blue = np.append(WC_blue, float(row[5]))
+                 WC_green = np.append(WC_green, float(row[6]))
                  
 
-    return start_dates, end_dates, Y, Yirr, Ypr, WP, WPblue, WPgreen, WC, WC_blue, WC_green
+    return start_dates, end_dates, Y, WP, WC, WC_blue, WC_green
     
 def calc_Y_WP_seasons(start_dates, end_dates, lu_fh, lu_class, croptype, etgreen_fhs, etgreen_dates, etblue_fhs, etblue_dates, ndm_fhs, ndm_dates, p_fhs, p_dates, output_dir, HIWC_dict, ab = (1.0,1.0)):
     """
@@ -427,39 +427,39 @@ def calc_Y_WP_seasons(start_dates, end_dates, lu_fh, lu_class, croptype, etgreen
     
     writer.writerow(["Startdate", "Enddate", "Yield [kg/ha]", "Yield_pr [kg/ha]", "Yield_irr [kg/ha]", "WP [kg/m3]", "WP_blue [kg/m3]", "WP_green [kg/m3]", "WC [km3]", "WC_blue [km3]", "WC_green [km3]"])
     for startdate, enddate in zip(start_dates, end_dates):
-        Yield, Yield_pr, Yield_irr, Wp, Wp_blue, Wp_green, Wc, Wc_blue, Wc_green = calc_Y_WP_season(startdate, enddate, lu_fh, lu_class, croptype, etgreen_fhs, etgreen_dates, etblue_fhs, etblue_dates, ndm_fhs, ndm_dates, p_fhs, p_dates, HIWC_dict, ab = ab, output_dir = output_dir)
+        Yield, Wp, Wc, Wc_blue, Wc_green = calc_Y_WP_season(startdate, enddate, lu_fh, lu_class, croptype, etgreen_fhs, etgreen_dates, etblue_fhs, etblue_dates, ndm_fhs, ndm_dates, p_fhs, p_dates, HIWC_dict, output_dir = output_dir)
         
-        writer.writerow([startdate, enddate, Yield, Yield_pr, Yield_irr, Wp, Wp_blue, Wp_green, Wc, Wc_blue, Wc_green])
+        writer.writerow([startdate, enddate, Yield, Wp, Wc, Wc_blue, Wc_green])
     
     csv_file.close()
     return csv_filename
 
-def split_Yield(pfraction, etbfraction, a, b):
-    """
-    Calculate fractions to split Yield into Yield_precip and Yield _irri.
+#def split_Yield(pfraction, etbfraction, a, b):
+#    """
+#    Calculate fractions to split Yield into Yield_precip and Yield _irri.
+#    
+#    Parameters
+#    ----------
+#    pfraction : ndarray
+#        Array of Precipitation devided by np.nanmax(P)
+#    etbfraction : ndarray
+#        Array of fraction of ETblue of total ET.
+#    a : float
+#        Parameter to define the fraction.
+#    b : float
+#        Parameter to define the fraction.
+#        
+#    Returns
+#    -------
+#    fraction : ndarray
+#        Array of the fraction.
+#    """
+#    fraction = -(((etbfraction-1)*a)**2 - ((pfraction-1)*b)**2) + 0.5
+#    fraction = np.where(fraction > 1.0, 1.0, fraction)
+#    fraction = np.where(fraction < 0.0, 0.0, fraction)
+#    return fraction
     
-    Parameters
-    ----------
-    pfraction : ndarray
-        Array of Precipitation devided by np.nanmax(P)
-    etbfraction : ndarray
-        Array of fraction of ETblue of total ET.
-    a : float
-        Parameter to define the fraction.
-    b : float
-        Parameter to define the fraction.
-        
-    Returns
-    -------
-    fraction : ndarray
-        Array of the fraction.
-    """
-    fraction = -(((etbfraction-1)*a)**2 - ((pfraction-1)*b)**2) + 0.5
-    fraction = np.where(fraction > 1.0, 1.0, fraction)
-    fraction = np.where(fraction < 0.0, 0.0, fraction)
-    return fraction
-    
-def calc_Y_WP_season(startdate, enddate, lu_fh, lu_class, croptype, etgreen_fhs, etgreen_dates, etblue_fhs, etblue_dates, ndm_fhs, ndm_dates, p_fhs, p_dates, HIWC_dict, ab = (1.0,1.0), output_dir = None):
+def calc_Y_WP_season(startdate, enddate, lu_fh, lu_class, croptype, etgreen_fhs, etgreen_dates, etblue_fhs, etblue_dates, ndm_fhs, ndm_dates, p_fhs, p_dates, HIWC_dict, output_dir = None):
     """
     Calculate Yields and WPs for one season.
     
@@ -560,9 +560,9 @@ def calc_Y_WP_season(startdate, enddate, lu_fh, lu_class, croptype, etgreen_fhs,
         ETBLUE = np.nansum(ETBLUEs, axis=2)
         del ETBLUEs
         
-        Ps = np.stack([becgis.open_as_array(p_fhs[p_dates == date][0], nan_values = True) * fraction for date, fraction in zip(req_dates, fractions)], axis=2)
-        P = np.nansum(Ps, axis=2)
-        del Ps
+#        Ps = np.stack([becgis.open_as_array(p_fhs[p_dates == date][0], nan_values = True) * fraction for date, fraction in zip(req_dates, fractions)], axis=2)
+#        P = np.nansum(Ps, axis=2)
+#        del Ps
         
         LULC = becgis.open_as_array(lu_fh)
         
@@ -571,35 +571,35 @@ def calc_Y_WP_season(startdate, enddate, lu_fh, lu_class, croptype, etgreen_fhs,
         
         Y = (harvest_index * NDM) / (1 - moisture_content)
         
-        etbfraction = ETBLUE / (ETBLUE + ETGREEN)
-        pfraction = P / np.nanmax(P)
-        fraction = split_Yield(pfraction, etbfraction, ab[0], ab[1])
-        
-        Yirr = Y * fraction
-        Ypr = Y - Yirr
-
-        if output_dir:
-            x = y = np.arange(0.0, 1.1, 0.1)
-            XX, YY = np.meshgrid(x, y)
-            Z = split_Yield(XX,YY, ab[0], ab[1])
-            plt.figure(1, figsize = (12,10))
-            plt.clf()
-            cmap = LinearSegmentedColormap.from_list('mycmap', ['#6bb8cc','#a3db76','#d98d8e'])
-            plt.contourf(XX,YY,Z,np.arange(0.0,1.1,0.1), cmap = cmap)
-            plt.colorbar(ticks = np.arange(0.0,1.1,0.1), label= 'Yirr as fraction of total Y [-]', boundaries = [0,1])
-            plt.xlabel('Normalized Precipitation [-]')
-            plt.ylabel('ETblue/ET [-]')
-            plt.title('Split Yield into Yirr and Ypr')
-            plt.suptitle('Z(X,Y) = -(((Y-1) * a)^2 - ((X-1) * b)^2) + 0.5 with a = {0:.2f} and b = {1:.2f}'.format(ab[0],ab[1]))
-            plt.scatter(pfraction, etbfraction, color = 'w', label = croptype, edgecolors = 'k')
-            plt.legend()
-            plt.xlim((0,1))
-            plt.ylim((0,1))
-            plt.savefig(os.path.join(output_dir, '{0}_{1}_{2}_cloud.png'.format(croptype, req_dates[0], req_dates[-1])))
+#        etbfraction = ETBLUE / (ETBLUE + ETGREEN)
+#        pfraction = P / np.nanmax(P)
+#        fraction = split_Yield(pfraction, etbfraction, ab[0], ab[1])
+#        
+#        Yirr = Y * fraction
+#        Ypr = Y - Yirr
+#
+#        if output_dir:
+#            x = y = np.arange(0.0, 1.1, 0.1)
+#            XX, YY = np.meshgrid(x, y)
+#            Z = split_Yield(XX,YY, ab[0], ab[1])
+#            plt.figure(1, figsize = (12,10))
+#            plt.clf()
+#            cmap = LinearSegmentedColormap.from_list('mycmap', ['#6bb8cc','#a3db76','#d98d8e'])
+#            plt.contourf(XX,YY,Z,np.arange(0.0,1.1,0.1), cmap = cmap)
+#            plt.colorbar(ticks = np.arange(0.0,1.1,0.1), label= 'Yirr as fraction of total Y [-]', boundaries = [0,1])
+#            plt.xlabel('Normalized Precipitation [-]')
+#            plt.ylabel('ETblue/ET [-]')
+#            plt.title('Split Yield into Yirr and Ypr')
+#            plt.suptitle('Z(X,Y) = -(((Y-1) * a)^2 - ((X-1) * b)^2) + 0.5 with a = {0:.2f} and b = {1:.2f}'.format(ab[0],ab[1]))
+#            plt.scatter(pfraction, etbfraction, color = 'w', label = croptype, edgecolors = 'k')
+#            plt.legend()
+#            plt.xlim((0,1))
+#            plt.ylim((0,1))
+#            plt.savefig(os.path.join(output_dir, '{0}_{1}_{2}_cloud.png'.format(croptype, req_dates[0], req_dates[-1])))
 
         Yield = np.nanmean(Y)
-        Yield_pr = np.nanmean(Ypr)
-        Yield_irr = np.nanmean(Yirr)
+#        Yield_pr = np.nanmean(Ypr)
+#        Yield_irr = np.nanmean(Yirr)
         
         Et_blue = np.nanmean(ETBLUE)
         Et_green = np.nanmean(ETGREEN)
@@ -613,14 +613,19 @@ def calc_Y_WP_season(startdate, enddate, lu_fh, lu_class, croptype, etgreen_fhs,
         print('{0}: {1} km2'.format(croptype, np.nansum(areas)))
         
         Wp = Yield / ((Et_blue + Et_green) * 10)
-        Wp_blue = np.where(Et_blue == 0, [np.nan], [Yield_irr / (Et_blue * 10)])[0]
-        Wp_green = np.where(Et_green == 0, [np.nan], [Yield_pr / (Et_green * 10)])[0]
+#        Wp_blue = np.where(Et_blue == 0, [np.nan], [Yield_irr / (Et_blue * 10)])[0]
+#        Wp_green = np.where(Et_green == 0, [np.nan], [Yield_pr / (Et_green * 10)])[0]
         
     else:
+#        
+#        Yield = Yield_pr = Yield_irr = Wp = Wp_blue = Wp_green = Wc = Wc_blue = Wc_green = np.nan
+#        
+#    return Yield, Yield_pr, Yield_irr, Wp, Wp_blue, Wp_green, Wc, Wc_blue, Wc_green
+        Yield = Wp = Wc = Wc_blue = Wc_green = np.nan
         
-        Yield = Yield_pr = Yield_irr = Wp = Wp_blue = Wp_green = Wc = Wc_blue = Wc_green = np.nan
-        
-    return Yield, Yield_pr, Yield_irr, Wp, Wp_blue, Wp_green, Wc, Wc_blue, Wc_green
+    return Yield, Wp,  Wc, Wc_blue, Wc_green
+
+
 
 def plot_Y_WP(csv_fh, output_dir, croptype = None, catchment_name = None, filetype = 'png'):
     """
@@ -643,7 +648,7 @@ def plot_Y_WP(csv_fh, output_dir, croptype = None, catchment_name = None, filety
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
             
-    start_dates, end_dates, Y, Yirr, Ypr, WP, WPblue, WPgreen, WC, WCblue, WCgreen = read_csv(csv_fh)
+    start_dates, end_dates, Y, WP, WC, WCblue, WCgreen = read_csv(csv_fh)
     
     ordinal_startdates = np.array([date.toordinal() for date in start_dates])
     ordinal_enddates = np.array([date.toordinal() for date in end_dates])
@@ -652,8 +657,8 @@ def plot_Y_WP(csv_fh, output_dir, croptype = None, catchment_name = None, filety
     plt.clf()
     plt.grid(b=True, which='Major', color='0.65',linestyle='--', zorder = 0)
     ax = fig.add_subplot(111)
-    ax.bar(start_dates, Yirr, ordinal_enddates-ordinal_startdates, color = '#6bb8cc', label = 'Yield from irrigation', linewidth = 2, edgecolor = 'w', align='edge')
-    ax.bar(start_dates, Ypr, ordinal_enddates-ordinal_startdates, bottom = Yirr, color = '#a3db76', label = 'Yield from precipitation', linewidth = 2, edgecolor = 'w', align='edge')
+    ax.bar(start_dates, Y, ordinal_enddates-ordinal_startdates, color = '#6bb8cc', label = 'Yield from irrigation', linewidth = 2, edgecolor = 'w', align='edge')
+#    ax.bar(start_dates, Ypr, ordinal_enddates-ordinal_startdates, bottom = Yirr, color = '#a3db76', label = 'Yield from precipitation', linewidth = 2, edgecolor = 'w', align='edge')
     ax.set_title('Seasonal Yield, {0} in {1}'.format(croptype, catchment_name))
     ax.set_xlabel('Time')
     ax.set_ylabel('Yield [kg/ha]')
@@ -673,13 +678,13 @@ def plot_Y_WP(csv_fh, output_dir, croptype = None, catchment_name = None, filety
     blue_line = mlines.Line2D([], [], color='#6bb8cc', label='WPblue', lw = 3)
     green_line = mlines.Line2D([], [], color='#a3db76', label='WPgreen', lw = 3)
     ax.legend(handles=[red_patch,blue_line, green_line],loc = 'upper left',fancybox=True, shadow=True)
-    ax.bar(ordinal_meandates, WPblue, color = 'w', linewidth = 2, edgecolor = 'w', xerr = (ordinal_enddates-ordinal_startdates)/2.2, ecolor = '#6bb8cc', capsize = 0, error_kw = {'lw': 3})
-    ax.bar(ordinal_meandates, WPgreen, color = 'w', linewidth = 2, edgecolor = 'w', xerr = (ordinal_enddates-ordinal_startdates)/2.2, ecolor = '#a3db76', capsize = 0, error_kw = {'lw': 3})
+    ax.bar(ordinal_meandates, WP, color = 'w', linewidth = 2, edgecolor = 'w', xerr = (ordinal_enddates-ordinal_startdates)/2.2, ecolor = '#6bb8cc', capsize = 0, error_kw = {'lw': 3})
+#    ax.bar(ordinal_meandates, WPgreen, color = 'w', linewidth = 2, edgecolor = 'w', xerr = (ordinal_enddates-ordinal_startdates)/2.2, ecolor = '#a3db76', capsize = 0, error_kw = {'lw': 3})
     ax.bar(start_dates, WP, ordinal_enddates-ordinal_startdates, color = '#d98d8e', label = 'WP', linewidth=2, edgecolor='w', align='edge')
     ax.set_title('Seasonal Water Productivity, {0} in {1}'.format(croptype, catchment_name))
     ax.set_ylabel('Water Productivity [kg/m3]')
     ax.set_xlabel('Time')
-    ax.set_ylim([0, max(max(WP), max(WPblue), max(WPgreen)) *1.2])
+    ax.set_ylim([0, max(WP) *1.2])
     fig.autofmt_xdate()
     [r.set_zorder(10) for r in ax.spines.values()]
     plt.savefig(os.path.join(output_dir,'{0}_wps.{1}'.format(croptype,filetype)))    
@@ -852,306 +857,306 @@ def create_sheet3_png(basin, period, units, data, output, template=False):
     # Land productivity
     lp_r01c01 = float(df2c.loc[(df2c.TYPE == "Cereals") &
                       (df2c.SUBCLASS == "Yield")].LAND_PRODUCTIVITY)
-    lp_r02c01 = float(df2c.loc[(df2c.TYPE == "Cereals") &
-                      (df2c.SUBCLASS == "Yield rainfall")].LAND_PRODUCTIVITY)
-    lp_r03c01 = float(df2c.loc[(df2c.TYPE == "Cereals") &
-                      (df2c.SUBCLASS == "Incremental yield")].LAND_PRODUCTIVITY)
+#    lp_r02c01 = float(df2c.loc[(df2c.TYPE == "Cereals") &
+#                      (df2c.SUBCLASS == "Yield rainfall")].LAND_PRODUCTIVITY)
+#    lp_r03c01 = float(df2c.loc[(df2c.TYPE == "Cereals") &
+#                      (df2c.SUBCLASS == "Incremental yield")].LAND_PRODUCTIVITY)
     lp_r04c01 = float(df2c.loc[(df2c.TYPE == "Cereals") &
                       (df2c.SUBCLASS == "Total yield")].LAND_PRODUCTIVITY)
 
     lp_r01c02 = float(df2c.loc[(df2c.SUBTYPE == "Root/tuber crops") &
                       (df2c.SUBCLASS == "Yield")].LAND_PRODUCTIVITY)
-    lp_r02c02 = float(df2c.loc[(df2c.SUBTYPE == "Root/tuber crops") &
-                      (df2c.SUBCLASS == "Yield rainfall")].LAND_PRODUCTIVITY)
-    lp_r03c02 = float(df2c.loc[(df2c.SUBTYPE == "Root/tuber crops") &
-                      (df2c.SUBCLASS == "Incremental yield")].LAND_PRODUCTIVITY)
+#    lp_r02c02 = float(df2c.loc[(df2c.SUBTYPE == "Root/tuber crops") &
+#                      (df2c.SUBCLASS == "Yield rainfall")].LAND_PRODUCTIVITY)
+#    lp_r03c02 = float(df2c.loc[(df2c.SUBTYPE == "Root/tuber crops") &
+#                      (df2c.SUBCLASS == "Incremental yield")].LAND_PRODUCTIVITY)
     lp_r04c02 = float(df2c.loc[(df2c.SUBTYPE == "Root/tuber crops") &
                       (df2c.SUBCLASS == "Total yield")].LAND_PRODUCTIVITY)
 
     lp_r01c03 = float(df2c.loc[(df2c.SUBTYPE == "Leguminous crops") &
                       (df2c.SUBCLASS == "Yield")].LAND_PRODUCTIVITY)
-    lp_r02c03 = float(df2c.loc[(df2c.SUBTYPE == "Leguminous crops") &
-                      (df2c.SUBCLASS == "Yield rainfall")].LAND_PRODUCTIVITY)
-    lp_r03c03 = float(df2c.loc[(df2c.SUBTYPE == "Leguminous crops") &
-                      (df2c.SUBCLASS == "Incremental yield")].LAND_PRODUCTIVITY)
+#    lp_r02c03 = float(df2c.loc[(df2c.SUBTYPE == "Leguminous crops") &
+#                      (df2c.SUBCLASS == "Yield rainfall")].LAND_PRODUCTIVITY)
+#    lp_r03c03 = float(df2c.loc[(df2c.SUBTYPE == "Leguminous crops") &
+#                      (df2c.SUBCLASS == "Incremental yield")].LAND_PRODUCTIVITY)
     lp_r04c03 = float(df2c.loc[(df2c.SUBTYPE == "Leguminous crops") &
                       (df2c.SUBCLASS == "Total yield")].LAND_PRODUCTIVITY)
 
     lp_r01c04 = float(df2c.loc[(df2c.SUBTYPE == "Sugar crops") &
                       (df2c.SUBCLASS == "Yield")].LAND_PRODUCTIVITY)
-    lp_r02c04 = float(df2c.loc[(df2c.SUBTYPE == "Sugar crops") &
-                      (df2c.SUBCLASS == "Yield rainfall")].LAND_PRODUCTIVITY)
-    lp_r03c04 = float(df2c.loc[(df2c.SUBTYPE == "Sugar crops") &
-                      (df2c.SUBCLASS == "Incremental yield")].LAND_PRODUCTIVITY)
+#    lp_r02c04 = float(df2c.loc[(df2c.SUBTYPE == "Sugar crops") &
+#                      (df2c.SUBCLASS == "Yield rainfall")].LAND_PRODUCTIVITY)
+#    lp_r03c04 = float(df2c.loc[(df2c.SUBTYPE == "Sugar crops") &
+#                      (df2c.SUBCLASS == "Incremental yield")].LAND_PRODUCTIVITY)
     lp_r04c04 = float(df2c.loc[(df2c.SUBTYPE == "Sugar crops") &
                       (df2c.SUBCLASS == "Total yield")].LAND_PRODUCTIVITY)
 
     lp_r01c05 = float(df2c.loc[(df2c.TYPE == "Non-cereals") &
                       (df2c.SUBCLASS == "Yield") &
                       (df2c.SUBTYPE == "Merged")].LAND_PRODUCTIVITY)
-    lp_r02c05 = float(df2c.loc[(df2c.TYPE == "Non-cereals") &
-                      (df2c.SUBCLASS == "Yield rainfall") &
-                      (df2c.SUBTYPE == "Merged")].LAND_PRODUCTIVITY)
-    lp_r03c05 = float(df2c.loc[(df2c.TYPE == "Non-cereals") &
-                      (df2c.SUBCLASS == "Incremental yield") &
-                      (df2c.SUBTYPE == "Merged")].LAND_PRODUCTIVITY)
+#    lp_r02c05 = float(df2c.loc[(df2c.TYPE == "Non-cereals") &
+#                      (df2c.SUBCLASS == "Yield rainfall") &
+#                      (df2c.SUBTYPE == "Merged")].LAND_PRODUCTIVITY)
+#    lp_r03c05 = float(df2c.loc[(df2c.TYPE == "Non-cereals") &
+#                      (df2c.SUBCLASS == "Incremental yield") &
+#                      (df2c.SUBTYPE == "Merged")].LAND_PRODUCTIVITY)
     lp_r04c05 = float(df2c.loc[(df2c.TYPE == "Non-cereals") &
                       (df2c.SUBCLASS == "Total yield") &
                       (df2c.SUBTYPE == "Merged")].LAND_PRODUCTIVITY)
 
     lp_r01c06 = float(df2c.loc[(df2c.SUBTYPE == "Vegetables & melons") &
                       (df2c.SUBCLASS == "Yield")].LAND_PRODUCTIVITY)
-    lp_r02c06 = float(df2c.loc[(df2c.SUBTYPE == "Vegetables & melons") &
-                      (df2c.SUBCLASS == "Yield rainfall")].LAND_PRODUCTIVITY)
-    lp_r03c06 = float(df2c.loc[(df2c.SUBTYPE == "Vegetables & melons") &
-                      (df2c.SUBCLASS == "Incremental yield")].LAND_PRODUCTIVITY)
+#    lp_r02c06 = float(df2c.loc[(df2c.SUBTYPE == "Vegetables & melons") &
+#                      (df2c.SUBCLASS == "Yield rainfall")].LAND_PRODUCTIVITY)
+#    lp_r03c06 = float(df2c.loc[(df2c.SUBTYPE == "Vegetables & melons") &
+#                      (df2c.SUBCLASS == "Incremental yield")].LAND_PRODUCTIVITY)
     lp_r04c06 = float(df2c.loc[(df2c.SUBTYPE == "Vegetables & melons") &
                       (df2c.SUBCLASS == "Total yield")].LAND_PRODUCTIVITY)
 
     lp_r01c07 = float(df2c.loc[(df2c.SUBTYPE == "Fruits & nuts") &
                       (df2c.SUBCLASS == "Yield")].LAND_PRODUCTIVITY)
-    lp_r02c07 = float(df2c.loc[(df2c.SUBTYPE == "Fruits & nuts") &
-                      (df2c.SUBCLASS == "Yield rainfall")].LAND_PRODUCTIVITY)
-    lp_r03c07 = float(df2c.loc[(df2c.SUBTYPE == "Fruits & nuts") &
-                      (df2c.SUBCLASS == "Incremental yield")].LAND_PRODUCTIVITY)
+#    lp_r02c07 = float(df2c.loc[(df2c.SUBTYPE == "Fruits & nuts") &
+#                      (df2c.SUBCLASS == "Yield rainfall")].LAND_PRODUCTIVITY)
+#    lp_r03c07 = float(df2c.loc[(df2c.SUBTYPE == "Fruits & nuts") &
+#                      (df2c.SUBCLASS == "Incremental yield")].LAND_PRODUCTIVITY)
     lp_r04c07 = float(df2c.loc[(df2c.SUBTYPE == "Fruits & nuts") &
                       (df2c.SUBCLASS == "Total yield")].LAND_PRODUCTIVITY)
 
     lp_r01c08 = float(df2c.loc[(df2c.TYPE == "Fruit & vegetables") &
                       (df2c.SUBCLASS == "Yield") &
                       (df2c.SUBTYPE == "Merged")].LAND_PRODUCTIVITY)
-    lp_r02c08 = float(df2c.loc[(df2c.TYPE == "Fruit & vegetables") &
-                      (df2c.SUBCLASS == "Yield rainfall") &
-                      (df2c.SUBTYPE == "Merged")].LAND_PRODUCTIVITY)
-    lp_r03c08 = float(df2c.loc[(df2c.TYPE == "Fruit & vegetables") &
-                      (df2c.SUBCLASS == "Incremental yield") &
-                      (df2c.SUBTYPE == "Merged")].LAND_PRODUCTIVITY)
+#    lp_r02c08 = float(df2c.loc[(df2c.TYPE == "Fruit & vegetables") &
+#                      (df2c.SUBCLASS == "Yield rainfall") &
+#                      (df2c.SUBTYPE == "Merged")].LAND_PRODUCTIVITY)
+#    lp_r03c08 = float(df2c.loc[(df2c.TYPE == "Fruit & vegetables") &
+#                      (df2c.SUBCLASS == "Incremental yield") &
+#                      (df2c.SUBTYPE == "Merged")].LAND_PRODUCTIVITY)
     lp_r04c08 = float(df2c.loc[(df2c.TYPE == "Fruit & vegetables") &
                       (df2c.SUBCLASS == "Total yield") &
                       (df2c.SUBTYPE == "Merged")].LAND_PRODUCTIVITY)
 
     lp_r01c09 = float(df2c.loc[(df2c.TYPE == "Oilseeds") &
                       (df2c.SUBCLASS == "Yield")].LAND_PRODUCTIVITY)
-    lp_r02c09 = float(df2c.loc[(df2c.TYPE == "Oilseeds") &
-                      (df2c.SUBCLASS == "Yield rainfall")].LAND_PRODUCTIVITY)
-    lp_r03c09 = float(df2c.loc[(df2c.TYPE == "Oilseeds") &
-                      (df2c.SUBCLASS == "Incremental yield")].LAND_PRODUCTIVITY)
+#    lp_r02c09 = float(df2c.loc[(df2c.TYPE == "Oilseeds") &
+#                      (df2c.SUBCLASS == "Yield rainfall")].LAND_PRODUCTIVITY)
+#    lp_r03c09 = float(df2c.loc[(df2c.TYPE == "Oilseeds") &
+#                      (df2c.SUBCLASS == "Incremental yield")].LAND_PRODUCTIVITY)
     lp_r04c09 = float(df2c.loc[(df2c.TYPE == "Oilseeds") &
                       (df2c.SUBCLASS == "Total yield")].LAND_PRODUCTIVITY)
 
     lp_r01c10 = float(df2c.loc[(df2c.TYPE == "Feed crops") &
                       (df2c.SUBCLASS == "Yield")].LAND_PRODUCTIVITY)
-    lp_r02c10 = float(df2c.loc[(df2c.TYPE == "Feed crops") &
-                      (df2c.SUBCLASS == "Yield rainfall")].LAND_PRODUCTIVITY)
-    lp_r03c10 = float(df2c.loc[(df2c.TYPE == "Feed crops") &
-                      (df2c.SUBCLASS == "Incremental yield")].LAND_PRODUCTIVITY)
+#    lp_r02c10 = float(df2c.loc[(df2c.TYPE == "Feed crops") &
+#                      (df2c.SUBCLASS == "Yield rainfall")].LAND_PRODUCTIVITY)
+#    lp_r03c10 = float(df2c.loc[(df2c.TYPE == "Feed crops") &
+#                      (df2c.SUBCLASS == "Incremental yield")].LAND_PRODUCTIVITY)
     lp_r04c10 = float(df2c.loc[(df2c.TYPE == "Feed crops") &
                       (df2c.SUBCLASS == "Total yield")].LAND_PRODUCTIVITY)
 
     lp_r01c11 = float(df2c.loc[(df2c.TYPE == "Beverage crops") &
                       (df2c.SUBCLASS == "Yield")].LAND_PRODUCTIVITY)
-    lp_r02c11 = float(df2c.loc[(df2c.TYPE == "Beverage crops") &
-                      (df2c.SUBCLASS == "Yield rainfall")].LAND_PRODUCTIVITY)
-    lp_r03c11 = float(df2c.loc[(df2c.TYPE == "Beverage crops") &
-                      (df2c.SUBCLASS == "Incremental yield")].LAND_PRODUCTIVITY)
+#    lp_r02c11 = float(df2c.loc[(df2c.TYPE == "Beverage crops") &
+#                      (df2c.SUBCLASS == "Yield rainfall")].LAND_PRODUCTIVITY)
+#    lp_r03c11 = float(df2c.loc[(df2c.TYPE == "Beverage crops") &
+#                      (df2c.SUBCLASS == "Incremental yield")].LAND_PRODUCTIVITY)
     lp_r04c11 = float(df2c.loc[(df2c.TYPE == "Beverage crops") &
                       (df2c.SUBCLASS == "Total yield")].LAND_PRODUCTIVITY)
 
     lp_r01c12 = float(df2c.loc[(df2c.TYPE == "Other crops") &
                       (df2c.SUBCLASS == "Yield")].LAND_PRODUCTIVITY)
-    lp_r02c12 = float(df2c.loc[(df2c.TYPE == "Other crops") &
-                      (df2c.SUBCLASS == "Yield rainfall")].LAND_PRODUCTIVITY)
-    lp_r03c12 = float(df2c.loc[(df2c.TYPE == "Other crops") &
-                      (df2c.SUBCLASS == "Incremental yield")].LAND_PRODUCTIVITY)
+#    lp_r02c12 = float(df2c.loc[(df2c.TYPE == "Other crops") &
+#                      (df2c.SUBCLASS == "Yield rainfall")].LAND_PRODUCTIVITY)
+#    lp_r03c12 = float(df2c.loc[(df2c.TYPE == "Other crops") &
+#                      (df2c.SUBCLASS == "Incremental yield")].LAND_PRODUCTIVITY)
     lp_r04c12 = float(df2c.loc[(df2c.TYPE == "Other crops") &
                       (df2c.SUBCLASS == "Total yield")].LAND_PRODUCTIVITY)
 
     lp_r05c01 = float(df2n.loc[(df2n.SUBTYPE == "Meat") &
                       (df2n.SUBCLASS == "Yield")].LAND_PRODUCTIVITY)
-    lp_r06c01 = float(df2n.loc[(df2n.SUBTYPE == "Meat") &
-                      (df2n.SUBCLASS == "Yield rainfall")].LAND_PRODUCTIVITY)
-    lp_r07c01 = float(df2n.loc[(df2n.SUBTYPE == "Meat") &
-                      (df2n.SUBCLASS == "Incremental yield")].LAND_PRODUCTIVITY)
+#    lp_r06c01 = float(df2n.loc[(df2n.SUBTYPE == "Meat") &
+#                      (df2n.SUBCLASS == "Yield rainfall")].LAND_PRODUCTIVITY)
+#    lp_r07c01 = float(df2n.loc[(df2n.SUBTYPE == "Meat") &
+#                      (df2n.SUBCLASS == "Incremental yield")].LAND_PRODUCTIVITY)
     lp_r08c01 = float(df2n.loc[(df2n.SUBTYPE == "Meat") &
                       (df2n.SUBCLASS == "Total yield")].LAND_PRODUCTIVITY)
 
     lp_r05c02 = float(df2n.loc[(df2n.SUBTYPE == "Milk") &
                       (df2n.SUBCLASS == "Yield")].LAND_PRODUCTIVITY)
-    lp_r06c02 = float(df2n.loc[(df2n.SUBTYPE == "Milk") &
-                      (df2n.SUBCLASS == "Yield rainfall")].LAND_PRODUCTIVITY)
-    lp_r07c02 = float(df2n.loc[(df2n.SUBTYPE == "Milk") &
-                      (df2n.SUBCLASS == "Incremental yield")].LAND_PRODUCTIVITY)
+#    lp_r06c02 = float(df2n.loc[(df2n.SUBTYPE == "Milk") &
+#                      (df2n.SUBCLASS == "Yield rainfall")].LAND_PRODUCTIVITY)
+#    lp_r07c02 = float(df2n.loc[(df2n.SUBTYPE == "Milk") &
+#                      (df2n.SUBCLASS == "Incremental yield")].LAND_PRODUCTIVITY)
     lp_r08c02 = float(df2n.loc[(df2n.SUBTYPE == "Milk") &
                       (df2n.SUBCLASS == "Total yield")].LAND_PRODUCTIVITY)
 
     lp_r05c03 = float(df2n.loc[(df2n.TYPE == "Fish (Aquaculture)") &
                       (df2n.SUBCLASS == "Yield")].LAND_PRODUCTIVITY)
-    lp_r06c03 = float(df2n.loc[(df2n.TYPE == "Fish (Aquaculture)") &
-                      (df2n.SUBCLASS == "Yield rainfall")].LAND_PRODUCTIVITY)
-    lp_r07c03 = float(df2n.loc[(df2n.TYPE == "Fish (Aquaculture)") &
-                      (df2n.SUBCLASS == "Incremental yield")].LAND_PRODUCTIVITY)
+#    lp_r06c03 = float(df2n.loc[(df2n.TYPE == "Fish (Aquaculture)") &
+#                      (df2n.SUBCLASS == "Yield rainfall")].LAND_PRODUCTIVITY)
+#    lp_r07c03 = float(df2n.loc[(df2n.TYPE == "Fish (Aquaculture)") &
+#                      (df2n.SUBCLASS == "Incremental yield")].LAND_PRODUCTIVITY)
     lp_r08c03 = float(df2n.loc[(df2n.TYPE == "Fish (Aquaculture)") &
                       (df2n.SUBCLASS == "Total yield")].LAND_PRODUCTIVITY)
 
     lp_r05c04 = float(df2n.loc[(df2n.TYPE == "Timber") &
                       (df2n.SUBCLASS == "Yield")].LAND_PRODUCTIVITY)
-    lp_r06c04 = float(df2n.loc[(df2n.TYPE == "Timber") &
-                      (df2n.SUBCLASS == "Yield rainfall")].LAND_PRODUCTIVITY)
-    lp_r07c04 = float(df2n.loc[(df2n.TYPE == "Timber") &
-                      (df2n.SUBCLASS == "Incremental yield")].LAND_PRODUCTIVITY)
+#    lp_r06c04 = float(df2n.loc[(df2n.TYPE == "Timber") &
+#                      (df2n.SUBCLASS == "Yield rainfall")].LAND_PRODUCTIVITY)
+#    lp_r07c04 = float(df2n.loc[(df2n.TYPE == "Timber") &
+#                      (df2n.SUBCLASS == "Incremental yield")].LAND_PRODUCTIVITY)
     lp_r08c04 = float(df2n.loc[(df2n.TYPE == "Timber") &
                       (df2n.SUBCLASS == "Total yield")].LAND_PRODUCTIVITY)
 
     # Water productivity
     wp_r01c01 = float(df2c.loc[(df2c.TYPE == "Cereals") &
                       (df2c.SUBCLASS == "Yield")].WATER_PRODUCTIVITY)
-    wp_r02c01 = float(df2c.loc[(df2c.TYPE == "Cereals") &
-                      (df2c.SUBCLASS == "Yield rainfall")].WATER_PRODUCTIVITY)
-    wp_r03c01 = float(df2c.loc[(df2c.TYPE == "Cereals") &
-                      (df2c.SUBCLASS == "Incremental yield")].WATER_PRODUCTIVITY)
+#    wp_r02c01 = float(df2c.loc[(df2c.TYPE == "Cereals") &
+#                      (df2c.SUBCLASS == "Yield rainfall")].WATER_PRODUCTIVITY)
+#    wp_r03c01 = float(df2c.loc[(df2c.TYPE == "Cereals") &
+#                      (df2c.SUBCLASS == "Incremental yield")].WATER_PRODUCTIVITY)
     wp_r04c01 = float(df2c.loc[(df2c.TYPE == "Cereals") &
                       (df2c.SUBCLASS == "Total yield")].WATER_PRODUCTIVITY)
 
     wp_r01c02 = float(df2c.loc[(df2c.SUBTYPE == "Root/tuber crops") &
                       (df2c.SUBCLASS == "Yield")].WATER_PRODUCTIVITY)
-    wp_r02c02 = float(df2c.loc[(df2c.SUBTYPE == "Root/tuber crops") &
-                      (df2c.SUBCLASS == "Yield rainfall")].WATER_PRODUCTIVITY)
-    wp_r03c02 = float(df2c.loc[(df2c.SUBTYPE == "Root/tuber crops") &
-                      (df2c.SUBCLASS == "Incremental yield")].WATER_PRODUCTIVITY)
+#    wp_r02c02 = float(df2c.loc[(df2c.SUBTYPE == "Root/tuber crops") &
+#                      (df2c.SUBCLASS == "Yield rainfall")].WATER_PRODUCTIVITY)
+#    wp_r03c02 = float(df2c.loc[(df2c.SUBTYPE == "Root/tuber crops") &
+#                      (df2c.SUBCLASS == "Incremental yield")].WATER_PRODUCTIVITY)
     wp_r04c02 = float(df2c.loc[(df2c.SUBTYPE == "Root/tuber crops") &
                       (df2c.SUBCLASS == "Total yield")].WATER_PRODUCTIVITY)
 
     wp_r01c03 = float(df2c.loc[(df2c.SUBTYPE == "Leguminous crops") &
                       (df2c.SUBCLASS == "Yield")].WATER_PRODUCTIVITY)
-    wp_r02c03 = float(df2c.loc[(df2c.SUBTYPE == "Leguminous crops") &
-                      (df2c.SUBCLASS == "Yield rainfall")].WATER_PRODUCTIVITY)
-    wp_r03c03 = float(df2c.loc[(df2c.SUBTYPE == "Leguminous crops") &
-                      (df2c.SUBCLASS == "Incremental yield")].WATER_PRODUCTIVITY)
+#    wp_r02c03 = float(df2c.loc[(df2c.SUBTYPE == "Leguminous crops") &
+#                      (df2c.SUBCLASS == "Yield rainfall")].WATER_PRODUCTIVITY)
+#    wp_r03c03 = float(df2c.loc[(df2c.SUBTYPE == "Leguminous crops") &
+#                      (df2c.SUBCLASS == "Incremental yield")].WATER_PRODUCTIVITY)
     wp_r04c03 = float(df2c.loc[(df2c.SUBTYPE == "Leguminous crops") &
                       (df2c.SUBCLASS == "Total yield")].WATER_PRODUCTIVITY)
     
     wp_r01c04 = float(df2c.loc[(df2c.SUBTYPE == "Sugar crops") &
                       (df2c.SUBCLASS == "Yield")].WATER_PRODUCTIVITY)
-    wp_r02c04 = float(df2c.loc[(df2c.SUBTYPE == "Sugar crops") &
-                      (df2c.SUBCLASS == "Yield rainfall")].WATER_PRODUCTIVITY)
-    wp_r03c04 = float(df2c.loc[(df2c.SUBTYPE == "Sugar crops") &
-                      (df2c.SUBCLASS == "Incremental yield")].WATER_PRODUCTIVITY)
+#    wp_r02c04 = float(df2c.loc[(df2c.SUBTYPE == "Sugar crops") &
+#                      (df2c.SUBCLASS == "Yield rainfall")].WATER_PRODUCTIVITY)
+#    wp_r03c04 = float(df2c.loc[(df2c.SUBTYPE == "Sugar crops") &
+#                      (df2c.SUBCLASS == "Incremental yield")].WATER_PRODUCTIVITY)
     wp_r04c04 = float(df2c.loc[(df2c.SUBTYPE == "Sugar crops") &
                       (df2c.SUBCLASS == "Total yield")].WATER_PRODUCTIVITY)
 
     wp_r01c05 = float(df2c.loc[(df2c.TYPE == "Non-cereals") &
                       (df2c.SUBCLASS == "Yield") &
                       (df2c.SUBTYPE == "Merged")].WATER_PRODUCTIVITY)
-    wp_r02c05 = float(df2c.loc[(df2c.TYPE == "Non-cereals") &
-                      (df2c.SUBCLASS == "Yield rainfall") &
-                      (df2c.SUBTYPE == "Merged")].WATER_PRODUCTIVITY)
-    wp_r03c05 = float(df2c.loc[(df2c.TYPE == "Non-cereals") &
-                      (df2c.SUBCLASS == "Incremental yield") &
-                      (df2c.SUBTYPE == "Merged")].WATER_PRODUCTIVITY)
+#    wp_r02c05 = float(df2c.loc[(df2c.TYPE == "Non-cereals") &
+#                      (df2c.SUBCLASS == "Yield rainfall") &
+#                      (df2c.SUBTYPE == "Merged")].WATER_PRODUCTIVITY)
+#    wp_r03c05 = float(df2c.loc[(df2c.TYPE == "Non-cereals") &
+#                      (df2c.SUBCLASS == "Incremental yield") &
+#                      (df2c.SUBTYPE == "Merged")].WATER_PRODUCTIVITY)
     wp_r04c05 = float(df2c.loc[(df2c.TYPE == "Non-cereals") &
                       (df2c.SUBCLASS == "Total yield") &
                       (df2c.SUBTYPE == "Merged")].WATER_PRODUCTIVITY)
 
     wp_r01c06 = float(df2c.loc[(df2c.SUBTYPE == "Vegetables & melons") &
                       (df2c.SUBCLASS == "Yield")].WATER_PRODUCTIVITY)
-    wp_r02c06 = float(df2c.loc[(df2c.SUBTYPE == "Vegetables & melons") &
-                      (df2c.SUBCLASS == "Yield rainfall")].WATER_PRODUCTIVITY)
-    wp_r03c06 = float(df2c.loc[(df2c.SUBTYPE == "Vegetables & melons") &
-                      (df2c.SUBCLASS == "Incremental yield")].WATER_PRODUCTIVITY)
+#    wp_r02c06 = float(df2c.loc[(df2c.SUBTYPE == "Vegetables & melons") &
+#                      (df2c.SUBCLASS == "Yield rainfall")].WATER_PRODUCTIVITY)
+#    wp_r03c06 = float(df2c.loc[(df2c.SUBTYPE == "Vegetables & melons") &
+#                      (df2c.SUBCLASS == "Incremental yield")].WATER_PRODUCTIVITY)
     wp_r04c06 = float(df2c.loc[(df2c.SUBTYPE == "Vegetables & melons") &
                       (df2c.SUBCLASS == "Total yield")].WATER_PRODUCTIVITY)
 
     wp_r01c07 = float(df2c.loc[(df2c.SUBTYPE == "Fruits & nuts") &
                       (df2c.SUBCLASS == "Yield")].WATER_PRODUCTIVITY)
-    wp_r02c07 = float(df2c.loc[(df2c.SUBTYPE == "Fruits & nuts") &
-                      (df2c.SUBCLASS == "Yield rainfall")].WATER_PRODUCTIVITY)
-    wp_r03c07 = float(df2c.loc[(df2c.SUBTYPE == "Fruits & nuts") &
-                      (df2c.SUBCLASS == "Incremental yield")].WATER_PRODUCTIVITY)
+#    wp_r02c07 = float(df2c.loc[(df2c.SUBTYPE == "Fruits & nuts") &
+#                      (df2c.SUBCLASS == "Yield rainfall")].WATER_PRODUCTIVITY)
+#    wp_r03c07 = float(df2c.loc[(df2c.SUBTYPE == "Fruits & nuts") &
+#                      (df2c.SUBCLASS == "Incremental yield")].WATER_PRODUCTIVITY)
     wp_r04c07 = float(df2c.loc[(df2c.SUBTYPE == "Fruits & nuts") &
                       (df2c.SUBCLASS == "Total yield")].WATER_PRODUCTIVITY)
 
     wp_r01c08 = float(df2c.loc[(df2c.TYPE == "Fruit & vegetables") &
                       (df2c.SUBCLASS == "Yield") &
                       (df2c.SUBTYPE == "Merged")].WATER_PRODUCTIVITY)
-    wp_r02c08 = float(df2c.loc[(df2c.TYPE == "Fruit & vegetables") &
-                      (df2c.SUBCLASS == "Yield rainfall") &
-                      (df2c.SUBTYPE == "Merged")].WATER_PRODUCTIVITY)
-    wp_r03c08 = float(df2c.loc[(df2c.TYPE == "Fruit & vegetables") &
-                      (df2c.SUBCLASS == "Incremental yield") &
-                      (df2c.SUBTYPE == "Merged")].WATER_PRODUCTIVITY)
+#    wp_r02c08 = float(df2c.loc[(df2c.TYPE == "Fruit & vegetables") &
+#                      (df2c.SUBCLASS == "Yield rainfall") &
+#                      (df2c.SUBTYPE == "Merged")].WATER_PRODUCTIVITY)
+#    wp_r03c08 = float(df2c.loc[(df2c.TYPE == "Fruit & vegetables") &
+#                      (df2c.SUBCLASS == "Incremental yield") &
+#                      (df2c.SUBTYPE == "Merged")].WATER_PRODUCTIVITY)
     wp_r04c08 = float(df2c.loc[(df2c.TYPE == "Fruit & vegetables") &
                       (df2c.SUBCLASS == "Total yield") &
                       (df2c.SUBTYPE == "Merged")].WATER_PRODUCTIVITY)
 
     wp_r01c09 = float(df2c.loc[(df2c.TYPE == "Oilseeds") &
                       (df2c.SUBCLASS == "Yield")].WATER_PRODUCTIVITY)
-    wp_r02c09 = float(df2c.loc[(df2c.TYPE == "Oilseeds") &
-                      (df2c.SUBCLASS == "Yield rainfall")].WATER_PRODUCTIVITY)
-    wp_r03c09 = float(df2c.loc[(df2c.TYPE == "Oilseeds") &
-                      (df2c.SUBCLASS == "Incremental yield")].WATER_PRODUCTIVITY)
+#    wp_r02c09 = float(df2c.loc[(df2c.TYPE == "Oilseeds") &
+#                      (df2c.SUBCLASS == "Yield rainfall")].WATER_PRODUCTIVITY)
+#    wp_r03c09 = float(df2c.loc[(df2c.TYPE == "Oilseeds") &
+#                      (df2c.SUBCLASS == "Incremental yield")].WATER_PRODUCTIVITY)
     wp_r04c09 = float(df2c.loc[(df2c.TYPE == "Oilseeds") &
                       (df2c.SUBCLASS == "Total yield")].WATER_PRODUCTIVITY)
 
     wp_r01c10 = float(df2c.loc[(df2c.TYPE == "Feed crops") &
                       (df2c.SUBCLASS == "Yield")].WATER_PRODUCTIVITY)
-    wp_r02c10 = float(df2c.loc[(df2c.TYPE == "Feed crops") &
-                      (df2c.SUBCLASS == "Yield rainfall")].WATER_PRODUCTIVITY)
-    wp_r03c10 = float(df2c.loc[(df2c.TYPE == "Feed crops") &
-                      (df2c.SUBCLASS == "Incremental yield")].WATER_PRODUCTIVITY)
+#    wp_r02c10 = float(df2c.loc[(df2c.TYPE == "Feed crops") &
+#                      (df2c.SUBCLASS == "Yield rainfall")].WATER_PRODUCTIVITY)
+#    wp_r03c10 = float(df2c.loc[(df2c.TYPE == "Feed crops") &
+#                      (df2c.SUBCLASS == "Incremental yield")].WATER_PRODUCTIVITY)
     wp_r04c10 = float(df2c.loc[(df2c.TYPE == "Feed crops") &
                       (df2c.SUBCLASS == "Total yield")].WATER_PRODUCTIVITY)
 
     wp_r01c11 = float(df2c.loc[(df2c.TYPE == "Beverage crops") &
                       (df2c.SUBCLASS == "Yield")].WATER_PRODUCTIVITY)
-    wp_r02c11 = float(df2c.loc[(df2c.TYPE == "Beverage crops") &
-                      (df2c.SUBCLASS == "Yield rainfall")].WATER_PRODUCTIVITY)
-    wp_r03c11 = float(df2c.loc[(df2c.TYPE == "Beverage crops") &
-                      (df2c.SUBCLASS == "Incremental yield")].WATER_PRODUCTIVITY)
+#    wp_r02c11 = float(df2c.loc[(df2c.TYPE == "Beverage crops") &
+#                      (df2c.SUBCLASS == "Yield rainfall")].WATER_PRODUCTIVITY)
+#    wp_r03c11 = float(df2c.loc[(df2c.TYPE == "Beverage crops") &
+#                      (df2c.SUBCLASS == "Incremental yield")].WATER_PRODUCTIVITY)
     wp_r04c11 = float(df2c.loc[(df2c.TYPE == "Beverage crops") &
                       (df2c.SUBCLASS == "Total yield")].WATER_PRODUCTIVITY)
 
     wp_r01c12 = float(df2c.loc[(df2c.TYPE == "Other crops") &
                       (df2c.SUBCLASS == "Yield")].WATER_PRODUCTIVITY)
-    wp_r02c12 = float(df2c.loc[(df2c.TYPE == "Other crops") &
-                      (df2c.SUBCLASS == "Yield rainfall")].WATER_PRODUCTIVITY)
-    wp_r03c12 = float(df2c.loc[(df2c.TYPE == "Other crops") &
-                      (df2c.SUBCLASS == "Incremental yield")].WATER_PRODUCTIVITY)
+#    wp_r02c12 = float(df2c.loc[(df2c.TYPE == "Other crops") &
+#                      (df2c.SUBCLASS == "Yield rainfall")].WATER_PRODUCTIVITY)
+#    wp_r03c12 = float(df2c.loc[(df2c.TYPE == "Other crops") &
+#                      (df2c.SUBCLASS == "Incremental yield")].WATER_PRODUCTIVITY)
     wp_r04c12 = float(df2c.loc[(df2c.TYPE == "Other crops") &
                       (df2c.SUBCLASS == "Total yield")].WATER_PRODUCTIVITY)
 
     wp_r05c01 = float(df2n.loc[(df2n.SUBTYPE == "Meat") &
                       (df2n.SUBCLASS == "Yield")].WATER_PRODUCTIVITY)
-    wp_r06c01 = float(df2n.loc[(df2n.SUBTYPE == "Meat") &
-                      (df2n.SUBCLASS == "Yield rainfall")].WATER_PRODUCTIVITY)
-    wp_r07c01 = float(df2n.loc[(df2n.SUBTYPE == "Meat") &
-                      (df2n.SUBCLASS == "Incremental yield")].WATER_PRODUCTIVITY)
+#    wp_r06c01 = float(df2n.loc[(df2n.SUBTYPE == "Meat") &
+#                      (df2n.SUBCLASS == "Yield rainfall")].WATER_PRODUCTIVITY)
+#    wp_r07c01 = float(df2n.loc[(df2n.SUBTYPE == "Meat") &
+#                      (df2n.SUBCLASS == "Incremental yield")].WATER_PRODUCTIVITY)
     wp_r08c01 = float(df2n.loc[(df2n.SUBTYPE == "Meat") &
                       (df2n.SUBCLASS == "Total yield")].WATER_PRODUCTIVITY)
 
     wp_r05c02 = float(df2n.loc[(df2n.SUBTYPE == "Milk") &
                       (df2n.SUBCLASS == "Yield")].WATER_PRODUCTIVITY)
-    wp_r06c02 = float(df2n.loc[(df2n.SUBTYPE == "Milk") &
-                      (df2n.SUBCLASS == "Yield rainfall")].WATER_PRODUCTIVITY)
-    wp_r07c02 = float(df2n.loc[(df2n.SUBTYPE == "Milk") &
-                      (df2n.SUBCLASS == "Incremental yield")].WATER_PRODUCTIVITY)
+#    wp_r06c02 = float(df2n.loc[(df2n.SUBTYPE == "Milk") &
+#                      (df2n.SUBCLASS == "Yield rainfall")].WATER_PRODUCTIVITY)
+#    wp_r07c02 = float(df2n.loc[(df2n.SUBTYPE == "Milk") &
+#                      (df2n.SUBCLASS == "Incremental yield")].WATER_PRODUCTIVITY)
     wp_r08c02 = float(df2n.loc[(df2n.SUBTYPE == "Milk") &
                       (df2n.SUBCLASS == "Total yield")].WATER_PRODUCTIVITY)
 
     wp_r05c03 = float(df2n.loc[(df2n.TYPE == "Fish (Aquaculture)") &
                       (df2n.SUBCLASS == "Yield")].WATER_PRODUCTIVITY)
-    wp_r06c03 = float(df2n.loc[(df2n.TYPE == "Fish (Aquaculture)") &
-                      (df2n.SUBCLASS == "Yield rainfall")].WATER_PRODUCTIVITY)
-    wp_r07c03 = float(df2n.loc[(df2n.TYPE == "Fish (Aquaculture)") &
-                      (df2n.SUBCLASS == "Incremental yield")].WATER_PRODUCTIVITY)
+#    wp_r06c03 = float(df2n.loc[(df2n.TYPE == "Fish (Aquaculture)") &
+#                      (df2n.SUBCLASS == "Yield rainfall")].WATER_PRODUCTIVITY)
+#    wp_r07c03 = float(df2n.loc[(df2n.TYPE == "Fish (Aquaculture)") &
+#                      (df2n.SUBCLASS == "Incremental yield")].WATER_PRODUCTIVITY)
     wp_r08c03 = float(df2n.loc[(df2n.TYPE == "Fish (Aquaculture)") &
                       (df2n.SUBCLASS == "Total yield")].WATER_PRODUCTIVITY)
 
     wp_r05c04 = float(df2n.loc[(df2n.TYPE == "Timber") &
                       (df2n.SUBCLASS == "Yield")].WATER_PRODUCTIVITY)
-    wp_r06c04 = float(df2n.loc[(df2n.TYPE == "Timber") &
-                      (df2n.SUBCLASS == "Yield rainfall")].WATER_PRODUCTIVITY)
-    wp_r07c04 = float(df2n.loc[(df2n.TYPE == "Timber") &
-                      (df2n.SUBCLASS == "Incremental yield")].WATER_PRODUCTIVITY)
+#    wp_r06c04 = float(df2n.loc[(df2n.TYPE == "Timber") &
+#                      (df2n.SUBCLASS == "Yield rainfall")].WATER_PRODUCTIVITY)
+#    wp_r07c04 = float(df2n.loc[(df2n.TYPE == "Timber") &
+#                      (df2n.SUBCLASS == "Incremental yield")].WATER_PRODUCTIVITY)
     wp_r08c04 = float(df2n.loc[(df2n.TYPE == "Timber") &
                       (df2n.SUBCLASS == "Total yield")].WATER_PRODUCTIVITY)
 
@@ -1252,10 +1257,11 @@ def create_sheet3_png(basin, period, units, data, output, template=False):
         'noncrop_r03' : noncrop_r03,
         'noncrop_r04c01' : noncrop_r04c01,
         'noncrop_r04c02' : noncrop_r04c02,
-        'noncrop_r04' : noncrop_r04
+        'noncrop_r04' : noncrop_r04,
+        'ag_water_cons' : ag_water_cons
             } 
     
-    for key in list(p1.keys()):
+    for key in p1:
         if tree1.findall(".//*[@id='{0}']".format(key)) != []:
             xml_txt_box = tree1.findall(".//*[@id='{0}']".format(key))[0]
             if not pd.isnull(p1[key]):
@@ -1290,7 +1296,6 @@ def create_sheet3_png(basin, period, units, data, output, template=False):
     # Part 2
     
     p2 = {
-        'ag_water_cons' : ag_water_cons,
         'lp_r01c01' : lp_r01c01,
         'lp_r01c02' : lp_r01c02,
         'lp_r01c03' : lp_r01c03,
@@ -1303,30 +1308,30 @@ def create_sheet3_png(basin, period, units, data, output, template=False):
         'lp_r01c10' : lp_r01c10,
         'lp_r01c11' : lp_r01c11,
         'lp_r01c12' : lp_r01c12,
-        'lp_r02c01' : lp_r02c01,
-        'lp_r02c02' : lp_r02c02,
-        'lp_r02c03' : lp_r02c03,
-        'lp_r02c04' : lp_r02c04,
-        'lp_r02c05' : lp_r02c05,
-        'lp_r02c06' : lp_r02c06,
-        'lp_r02c07' : lp_r02c07,
-        'lp_r02c08' : lp_r02c08,
-        'lp_r02c09' : lp_r02c09,
-        'lp_r02c10' : lp_r02c10,
-        'lp_r02c11' : lp_r02c11,
-        'lp_r02c12' : lp_r02c12,
-        'lp_r03c01' : lp_r03c01,
-        'lp_r03c02' : lp_r03c02,
-        'lp_r03c03' : lp_r03c03,
-        'lp_r03c04' : lp_r03c04,
-        'lp_r03c05' : lp_r03c05,
-        'lp_r03c06' : lp_r03c06,
-        'lp_r03c07' : lp_r03c07,
-        'lp_r03c08' : lp_r03c08,
-        'lp_r03c09' : lp_r03c09,
-        'lp_r03c10' : lp_r03c10,
-        'lp_r03c11' : lp_r03c11,
-        'lp_r03c12' : lp_r03c12,
+#        'lp_r02c01' : lp_r02c01,
+#        'lp_r02c02' : lp_r02c02,
+#        'lp_r02c03' : lp_r02c03,
+#        'lp_r02c04' : lp_r02c04,
+#        'lp_r02c05' : lp_r02c05,
+#        'lp_r02c06' : lp_r02c06,
+#        'lp_r02c07' : lp_r02c07,
+#        'lp_r02c08' : lp_r02c08,
+#        'lp_r02c09' : lp_r02c09,
+#        'lp_r02c10' : lp_r02c10,
+#        'lp_r02c11' : lp_r02c11,
+#        'lp_r02c12' : lp_r02c12,
+#        'lp_r03c01' : lp_r03c01,
+#        'lp_r03c02' : lp_r03c02,
+#        'lp_r03c03' : lp_r03c03,
+#        'lp_r03c04' : lp_r03c04,
+#        'lp_r03c05' : lp_r03c05,
+#        'lp_r03c06' : lp_r03c06,
+#        'lp_r03c07' : lp_r03c07,
+#        'lp_r03c08' : lp_r03c08,
+#        'lp_r03c09' : lp_r03c09,
+#        'lp_r03c10' : lp_r03c10,
+#        'lp_r03c11' : lp_r03c11,
+#        'lp_r03c12' : lp_r03c12,
         'lp_r04c01' : lp_r04c01,
         'lp_r04c02' : lp_r04c02,
         'lp_r04c03' : lp_r04c03,
@@ -1341,7 +1346,7 @@ def create_sheet3_png(basin, period, units, data, output, template=False):
         'lp_r04c12' : lp_r04c12
         }
     
-    for key in list(p2.keys()):
+    for key in p2:
         if tree2.findall(".//*[@id='{0}']".format(key)) != []:
             xml_txt_box = tree2.findall(".//*[@id='{0}']".format(key))[0]
             if not pd.isnull(p2[key]):
@@ -1362,30 +1367,30 @@ def create_sheet3_png(basin, period, units, data, output, template=False):
         'wp_r01c10' : wp_r01c10,
         'wp_r01c11' : wp_r01c11,
         'wp_r01c12' : wp_r01c12,
-        'wp_r02c01' : wp_r02c01,
-        'wp_r02c02' : wp_r02c02,
-        'wp_r02c03' : wp_r02c03,
-        'wp_r02c04' : wp_r02c04,
-        'wp_r02c05' : wp_r02c05,
-        'wp_r02c06' : wp_r02c06,
-        'wp_r02c07' : wp_r02c07,
-        'wp_r02c08' : wp_r02c08,
-        'wp_r02c09' : wp_r02c09,
-        'wp_r02c10' : wp_r02c10,
-        'wp_r02c11' : wp_r02c11,
-        'wp_r02c12' : wp_r02c12,
-        'wp_r03c01' : wp_r03c01,
-        'wp_r03c02' : wp_r03c02,
-        'wp_r03c03' : wp_r03c03,
-        'wp_r03c04' : wp_r03c04,
-        'wp_r03c05' : wp_r03c05,
-        'wp_r03c06' : wp_r03c06,
-        'wp_r03c07' : wp_r03c07,
-        'wp_r03c08' : wp_r03c08,
-        'wp_r03c09' : wp_r03c09,
-        'wp_r03c10' : wp_r03c10,
-        'wp_r03c11' : wp_r03c11,
-        'wp_r03c12' : wp_r03c12,
+#        'wp_r02c01' : wp_r02c01,
+#        'wp_r02c02' : wp_r02c02,
+#        'wp_r02c03' : wp_r02c03,
+#        'wp_r02c04' : wp_r02c04,
+#        'wp_r02c05' : wp_r02c05,
+#        'wp_r02c06' : wp_r02c06,
+#        'wp_r02c07' : wp_r02c07,
+#        'wp_r02c08' : wp_r02c08,
+#        'wp_r02c09' : wp_r02c09,
+#        'wp_r02c10' : wp_r02c10,
+#        'wp_r02c11' : wp_r02c11,
+#        'wp_r02c12' : wp_r02c12,
+#        'wp_r03c01' : wp_r03c01,
+#        'wp_r03c02' : wp_r03c02,
+#        'wp_r03c03' : wp_r03c03,
+#        'wp_r03c04' : wp_r03c04,
+#        'wp_r03c05' : wp_r03c05,
+#        'wp_r03c06' : wp_r03c06,
+#        'wp_r03c07' : wp_r03c07,
+#        'wp_r03c08' : wp_r03c08,
+#        'wp_r03c09' : wp_r03c09,
+#        'wp_r03c10' : wp_r03c10,
+#        'wp_r03c11' : wp_r03c11,
+#        'wp_r03c12' : wp_r03c12,
         'wp_r04c01' : wp_r04c01,
         'wp_r04c02' : wp_r04c02,
         'wp_r04c03' : wp_r04c03,
@@ -1402,14 +1407,14 @@ def create_sheet3_png(basin, period, units, data, output, template=False):
         'lp_r05c02' : lp_r05c02,
         'lp_r05c03' : lp_r05c03,
         'lp_r05c04' : lp_r05c04,
-        'lp_r06c01' : lp_r06c01,
-        'lp_r06c02' : lp_r06c02,
-        'lp_r06c03' : lp_r06c03,
-        'lp_r06c04' : lp_r06c04,
-        'lp_r07c01' : lp_r07c01,
-        'lp_r07c02' : lp_r07c02,
-        'lp_r07c03' : lp_r07c03,
-        'lp_r07c04' : lp_r07c04,
+#        'lp_r06c01' : lp_r06c01,
+#        'lp_r06c02' : lp_r06c02,
+#        'lp_r06c03' : lp_r06c03,
+#        'lp_r06c04' : lp_r06c04,
+#        'lp_r07c01' : lp_r07c01,
+#        'lp_r07c02' : lp_r07c02,
+#        'lp_r07c03' : lp_r07c03,
+#        'lp_r07c04' : lp_r07c04,
         'lp_r08c01' : lp_r08c01,
         'lp_r08c02' : lp_r08c02,
         'lp_r08c03' : lp_r08c03,
@@ -1418,20 +1423,20 @@ def create_sheet3_png(basin, period, units, data, output, template=False):
         'wp_r05c02' : wp_r05c02,
         'wp_r05c03' : wp_r05c03,
         'wp_r05c04' : wp_r05c04,
-        'wp_r06c01' : wp_r06c01,
-        'wp_r06c02' : wp_r06c02,
-        'wp_r06c03' : wp_r06c03,
-        'wp_r06c04' : wp_r06c04,
-        'wp_r07c01' : wp_r07c01,
-        'wp_r07c02' : wp_r07c02,
-        'wp_r07c03' : wp_r07c03,
-        'wp_r07c04' : wp_r07c04,
+#        'wp_r06c01' : wp_r06c01,
+#        'wp_r06c02' : wp_r06c02,
+#        'wp_r06c03' : wp_r06c03,
+#        'wp_r06c04' : wp_r06c04,
+#        'wp_r07c01' : wp_r07c01,
+#        'wp_r07c02' : wp_r07c02,
+#        'wp_r07c03' : wp_r07c03,
+#        'wp_r07c04' : wp_r07c04,
         'wp_r08c01' : wp_r08c01,
         'wp_r08c02' : wp_r08c02,
         'wp_r08c03' : wp_r08c03,
         'wp_r08c04' : wp_r08c04
             }
-    for key in list(p3.keys()):
+    for key in p3:
         if tree2.findall(".//*[@id='{0}']".format(key)) != []:
             xml_txt_box = tree2.findall(".//*[@id='{0}']".format(key))[0]
             if not pd.isnull(p3[key]):
