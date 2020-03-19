@@ -478,8 +478,8 @@ def calc_Y_WP_season(startdate, enddate, lu_fh, lu_class, croptype, etgreen_fhs,
     season_complete = True
     for date in req_dates:
         season_complete = np.all([season_complete, date in common_dates])
-        if not season_complete:
-            print("{0} missing in input data, skipping this season".format(date))
+#        if not season_complete:
+#            print("{0} missing in input data, skipping this season".format(date))
             
     if season_complete:
     
@@ -522,7 +522,7 @@ def calc_Y_WP_season(startdate, enddate, lu_fh, lu_class, croptype, etgreen_fhs,
         Wc = Wc_blue + Wc_green
         
         areas[LULC != lu_class] = np.nan
-        print('{0}: {1} km2'.format(croptype, np.nansum(areas)))
+        print('{0} {2} to {3}: {1:.0f} km2'.format(croptype, np.nansum(areas),startdate, enddate))
         
         Wp = Yield / ((Et_blue + Et_green) * 10)
         
