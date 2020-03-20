@@ -335,7 +335,7 @@ def create_sheet4_6(complete_data, metadata, output_dir, global_data):
     shutil.rmtree(os.path.split(non_consumed_gw_tif)[0])
 #    shutil.rmtree(os.path.split(non_recov_tif)[0])
     shutil.rmtree(os.path.split(recov_tif)[0])
-    shutil.rmtree(os.path.split(non_recov_sw_tif)[0])
+#    shutil.rmtree(os.path.split(non_recov_sw_tif)[0])
 #    shutil.rmtree(os.path.split(non_recov_gw_tif)[0])
     shutil.rmtree(os.path.split(recov_sw_tif)[0])
     shutil.rmtree(os.path.split(recov_gw_tif)[0])
