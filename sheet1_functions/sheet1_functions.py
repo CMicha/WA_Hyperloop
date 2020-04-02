@@ -332,10 +332,9 @@ def create_sheet1_png(basin, period, units, data, output, template=False , smart
     land_et = et_l_pr + et_l_ut + et_l_mo + et_l_ma
     
     # landscape et
-    landsc_et = land_et + et_u_pr + et_u_ut + et_u_mo #duplicate number, unneeded
-
+    landsc_et = land_et + et_u_pr + et_u_ut + et_u_mo 
     p2 = {
-            'landscape_et' : land_et,
+            'landscape_et' : landsc_et,
             'green_protected' : et_l_pr,
             'green_utilized' : et_l_ut,
             'green_modified' : et_l_mo,
@@ -667,7 +666,7 @@ def calc_ETs(ET, lu_fh, sheet1_lucs):
         et[key] = np.nansum(ET[mask])
     return et
 
-def calc_utilizedflow(incremental_et, other, non_recoverable, other_fractions, non_recoverable_fractions):
+def calc_utilizedflow(incremental_et, other, other_fractions): #, non_recoverable_fractions):
     """
     Calculate the utilized flows per landuse category from total incremental ET, non_recoverable water and other.
     
@@ -696,14 +695,14 @@ def calc_utilizedflow(incremental_et, other, non_recoverable, other_fractions, n
         Utilized Flow for Managed Water Use.
     """
     assert np.sum(list(other_fractions.values())) == 1.00, "Fractions for other should sum to 1.00."
-    assert np.sum(list(non_recoverable_fractions.values())) == 1.00, "Fractions for non_recoverable should sum to 1.00."   
+#    assert np.sum(list(non_recoverable_fractions.values())) == 1.00, "Fractions for non_recoverable should sum to 1.00."   
     
-    np.array(list(incremental_et.values())) + np.array(list(other_fractions.values())) * other + np.array(list(non_recoverable_fractions.values())) * non_recoverable
+    np.array(list(incremental_et.values())) + np.array(list(other_fractions.values())) * other #+ np.array(list(non_recoverable_fractions.values())) * non_recoverable
     
-    uf_plu = incremental_et['Protected'] + other_fractions['Protected'] * other + non_recoverable_fractions['Protected'] * non_recoverable
-    uf_ulu = incremental_et['Utilized'] + other_fractions['Utilized'] * other + non_recoverable_fractions['Utilized'] * non_recoverable
-    uf_mlu = incremental_et['Modified'] + other_fractions['Modified'] * other + non_recoverable_fractions['Modified'] * non_recoverable
-    uf_mwu = incremental_et['Managed']  + other_fractions['Managed'] * other + non_recoverable_fractions['Managed'] * non_recoverable
+    uf_plu = incremental_et['Protected'] + other_fractions['Protected'] * other #+ non_recoverable_fractions['Protected'] * non_recoverable
+    uf_ulu = incremental_et['Utilized'] + other_fractions['Utilized'] * other #+ non_recoverable_fractions['Utilized'] * non_recoverable
+    uf_mlu = incremental_et['Modified'] + other_fractions['Modified'] * other #+ non_recoverable_fractions['Modified'] * non_recoverable
+    uf_mwu = incremental_et['Managed']  + other_fractions['Managed'] * other #+ non_recoverable_fractions['Managed'] * non_recoverable
     
     return uf_plu, uf_ulu, uf_mlu, uf_mwu
 
@@ -753,7 +752,7 @@ def calc_sheet1(entries, lu_fh, sheet1_lucs, recycling_ratio, q_outflow, q_out_a
     
     pixel_area = becgis.map_pixel_area_km(lu_fh)
 
-    gray_water_fraction = calc_basinmean(entries['WPL'], lu_fh)
+#    gray_water_fraction = calc_basinmean(entries['WPL'], lu_fh)
     ewr_percentage = calc_basinmean(entries['EWR'], lu_fh)
     
     P[np.isnan(LULC)] = ETgreen[np.isnan(LULC)] = ETblue[np.isnan(LULC)] = np.nan
@@ -764,7 +763,7 @@ def calc_sheet1(entries, lu_fh, sheet1_lucs, recycling_ratio, q_outflow, q_out_a
     results['et_advection'], results['p_advection'], results['p_recycled'], results['dS'] = calc_wb(P, ET, q_outflow, recycling_ratio, 
            q_in_sw = q_in_sw, q_in_gw = q_in_gw, q_in_desal = q_in_desal, q_out_sw = q_out_sw, q_out_gw = q_out_gw)
 
-    results['non_recoverable'] = gray_water_fraction * (q_outflow + q_out_sw) # Mekonnen and Hoekstra (2015), Global Gray Water Footprint and Water Pollution Levels Related to Anthropogenic Nitrogen Loads to Fresh Water
+#    results['non_recoverable'] = gray_water_fraction * (q_outflow + q_out_sw) # Mekonnen and Hoekstra (2015), Global Gray Water Footprint and Water Pollution Levels Related to Anthropogenic Nitrogen Loads to Fresh Water
     results['reserved_outflow_demand'] = q_out_avg * ewr_percentage
     
     results['other'] = 0.0
@@ -780,15 +779,15 @@ def calc_sheet1(entries, lu_fh, sheet1_lucs, recycling_ratio, q_outflow, q_out_a
                        'Protected':0.00,
                        'Utilized': 0.00}    
                        
-    non_recoverable_fractions = {'Modified': 0.00,
-                                 'Managed':  1.00,
-                                 'Protected':0.00,
-                                 'Utilized': 0.00}  
+#    non_recoverable_fractions = {'Modified': 0.00,
+#                                 'Managed':  1.00,
+#                                 'Protected':0.00,
+#                                 'Utilized': 0.00}  
                                  
-    results['uf_plu'], results['uf_ulu'], results['uf_mlu'], results['uf_mwu'] = calc_utilizedflow(incremental_et, results['other'], results['non_recoverable'], other_fractions, non_recoverable_fractions)
+    results['uf_plu'], results['uf_ulu'], results['uf_mlu'], results['uf_mwu'] = calc_utilizedflow(incremental_et, results['other'],  other_fractions) #, non_recoverable_fractions)
    
     net_inflow = results['p_recycled'] + results['p_advection'] + q_in_sw + q_in_gw + q_in_desal + results['dS'] 
-    consumed_water = np.nansum(list(landscape_et.values())) + np.nansum(list(incremental_et.values())) + results['other'] + results['non_recoverable']
+    consumed_water = np.nansum(list(landscape_et.values())) + np.nansum(list(incremental_et.values())) + results['other'] #+ results['non_recoverable']
     non_consumed_water = net_inflow - consumed_water
     
     results['non_utilizable_outflow'] = min(non_consumed_water, max(0.0, calc_non_utilizable(P, ET, entries['Fractions'])))
